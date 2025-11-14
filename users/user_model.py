@@ -70,4 +70,40 @@ def insert_user(user):
         conn.close()
     
     return inserted_user
+
+def update_user(user):
+    updated_user = {}
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET user_name = %s, username = %s, email = %s, password_hash = %s, user_role = %s WHERE user_name = %s",
+                    (user['user_name'], user['username'], user['email'], user['password_hash'], user['user_role'],)
+        )
+        conn.commit()
+        updated_user = get_user_by_name(user["user_name"])
+
+    except:
+        conn.rollback()
+        updated_user = {}
+
+    finally:
+        conn.close()
+
+    return updated_user
+
+def delete_user(user_name):
+    message = {}
+    try:
+        conn = connect_to_db()
+        conn.execute("DELETE from users WHERE user_name= ?", (user_name,))
+        conn.commit()
+        message["status"] = "User deleted successfully"
+    except:
+        conn.rollback()
+        message["status"] = "Cannot delete user"
+    
+    finally:
+        conn.close()
+    
+    return message
         

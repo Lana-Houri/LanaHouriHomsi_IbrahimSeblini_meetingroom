@@ -18,3 +18,11 @@ def add_user():
     user = request.get_json()
     return jsonify(insert_user(user))
 
+@app.route('/api/user/update', methods=['PUT'])
+def update_user():
+    user=request.get_json()
+    return jsonify(update_user(user))
+
+@app.route('/api/users/delete/<user_name>', methods=['DELETE'])
+def delete_user(user_name):
+    return jsonify(delete_user(user_name))

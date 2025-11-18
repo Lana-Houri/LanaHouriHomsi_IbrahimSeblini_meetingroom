@@ -25,7 +25,7 @@ def api_update_user():
 def api_delete_user(username):
     return jsonify(delete_user(username))
 
-@user_bp.route('/admin/update/user_role', method=['PUT'])
+@user_bp.route('/admin/update/user_role', methods=['PUT'])
 def api_update_user_role():
     data = request.get_json()
     username = data.get('username')
@@ -41,7 +41,7 @@ def admin_reset_password():
     return jsonify(reset_password(username, new_password))
 
 @user_bp.route('/regular_user/<user_name>', methods=['GET'])
-def get_user(username):
+def get_regular_user(username):
     return jsonify(get_user_by_name(username))
 
 @user_bp.route('/regular_user/update', methods=['PUT'])
@@ -50,11 +50,11 @@ def update_own_profile_route():
     return jsonify(update_own_profile(user))
 
 @user_bp.route('/facility_manager/<user_name>', methods=['GET'])
-def get_user(username):
+def get_facility_manager_user(username):
     return jsonify(get_user_by_name(username))
 
 @user_bp.route('/facility_manager/update', methods=['PUT'])
-def update_own_profile_route():
+def update_own_profile():
     user = request.get_json()
     return jsonify(update_own_profile(user))
     

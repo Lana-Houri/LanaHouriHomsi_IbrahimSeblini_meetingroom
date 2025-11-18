@@ -4,7 +4,7 @@ CREATE TABLE Users(
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    user_role VARCHAR(50) CHECK (role IN ('Admin','regular user')),
+    user_role VARCHAR(50) CHECK (role IN ('Admin','regular user', 'moderator', 'Facility Manager','Auditor')),
 );
 
 CREATE TABLE Rooms(

@@ -48,4 +48,16 @@ def get_user(username):
 def update_own_profile_route():
     user = request.get_json()
     return jsonify(update_own_profile(user))
+
+@user_bp.route('/facility_manager/<user_name>', methods=['GET'])
+def get_user(username):
+    return jsonify(get_user_by_name(username))
+
+@user_bp.route('/facility_manager/update', methods=['PUT'])
+def update_own_profile_route():
+    user = request.get_json()
+    return jsonify(update_own_profile(user))
     
+@user_bp.route('/auditor/users', methods = ['GET'])
+def get_all_users():
+    return jsonify(get_users())

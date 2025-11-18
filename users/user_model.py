@@ -31,13 +31,13 @@ def get_users(user):
         users = []
     return users
 
-def get_user_by_name(user_name):
+def get_user_by_name(username):
     user = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Users WHERE user_name = %s", (user_name,)
+            "SELECT * FROM Users WHERE user_name = %s", (username,)
         ) 
         row = cur.fetchone()
         user["user_id"] = row["user_id"]
@@ -76,11 +76,11 @@ def update_user(user):
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute("UPDATE users SET user_name = %s, username = %s, email = %s, password_hash = %s, user_role = %s WHERE user_name = %s",
+        cur.execute("UPDATE users SET user_name = %s, username = %s, email = %s, password_hash = %s, user_role = %s WHERE username = %s",
                     (user['user_name'], user['username'], user['email'], user['password_hash'], user['user_role'],)
         )
         conn.commit()
-        updated_user = get_user_by_name(user["user_name"])
+        updated_user = get_user_by_name(user["username"])
 
     except:
         conn.rollback()
@@ -91,11 +91,31 @@ def update_user(user):
 
     return updated_user
 
-def delete_user(user_name):
+def update_role(user):
+    updated_user_role= {}
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET user_role = %s WHERE username = %s",
+                    (user['user_role'], user['username'],)
+        )
+        updated_user_role = cur.fetchone()
+        conn.commit()
+
+    except:
+        conn.rollback()
+        updated_user_role = {}
+
+    finally:
+        conn.close()
+
+    return updated_user_role
+
+def delete_user(username):
     message = {}
     try:
         conn = connect_to_db()
-        conn.execute("DELETE from users WHERE user_name= ?", (user_name,))
+        conn.execute("DELETE from users WHERE username= ?", (username,))
         conn.commit()
         message["status"] = "User deleted successfully"
     except:
@@ -106,4 +126,63 @@ def delete_user(user_name):
         conn.close()
     
     return message
+
+from werkzeug.security import generate_password_hash
+
+def reset_password(username, new_password):
+    updated_user_pass = {}
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        hashed_password = generate_password_hash(new_password)
+        
+        cur.execute("""
+            UPDATE users
+            SET password_hash = %s
+            WHERE username = %s
+            RETURNING user_id,user_name, username, email, user_role;
+        """, (hashed_password, username))
+        
+        updated_user_pass = cur.fetchone()
+        conn.commit()
+
+    except:
+        conn.rollback()
+        updated_user_pass = {}
+
+    finally:
+        conn.close()
+
+    return updated_user_pass
+
+def update_own_profile(user):
+    updated_user = {}
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        hashed_password = None
+
+        if user.get('password_hash'):
+            hashed_password = generate_password_hash(user['password'])
+
+        cur.execute("""
+            UPDATE users
+            SET user_name = %s,
+                email = %s,
+                password_hash = COALESCE(%s, password_hash)
+            WHERE username = %s
+            RETURNING user_id, name, username, email, role, created_at;
+        """, (user['user_name'], user['email'], hashed_password, user['username']))
+
+        updated_user = cur.fetchone()
+        conn.commit()
+
+    except:
+        conn.rollback()
+
+    finally:
+        conn.close()
+
+    return updated_user
+
         

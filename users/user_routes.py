@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
-from user_model import insert_user
+from user_model import get_users, insert_user, get_user_by_name, update_user, delete_user
 
 user_bp = Blueprint('user_bp', __name__)
 
 @user_bp.route('/api/users', methods = ['GET'])
-def get_users():
+def api_get_users():
     return jsonify(get_users())
 
 @user_bp.route('/api/users/<user_name>', methods=['GET'])
@@ -17,10 +17,10 @@ def add_user():
     return jsonify(insert_user(user))
 
 @user_bp.route('/api/user/update', methods=['PUT'])
-def update_user():
+def api_update_user():
     user=request.get_json()
     return jsonify(update_user(user))
 
 @user_bp.route('/api/users/delete/<user_name>', methods=['DELETE'])
-def delete_user(user_name):
+def api_delete_user(user_name):
     return jsonify(delete_user(user_name))

@@ -14,7 +14,7 @@ def get_users(user):
         conn = connect_to_db()
         cur = conn.cursor()
         cur.execute(
-            """ SELECT * FROM Users WHERE user_name = ?"""
+            """ SELECT * FROM Users"""
         ) 
         rows = cur.fetchall()
 

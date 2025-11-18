@@ -13,5 +13,4 @@ CREATE TABLE Rooms(
     Capacity INT NOT NULL,
     room_location VARCHAR(100) NOT NULL,
     room_status VARCHAR(50) CHECK (role IN ('Available', 'Booked')) DEFAULT 'Available',
-    
 )

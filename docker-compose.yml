@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:latest
+    container_name: meetingroom_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: meetingroom
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d meetingroom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Service 1: Users Service
+  users-service:
+    build: ./users
+    container_name: users_service
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
+  # Service 2: Rooms Service
+  rooms-service:
+    build: ./rooms
+    container_name: rooms_service
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
+  # Service 3: Bookings Service
+  bookings-service:
+    build: ./bookings
+    container_name: bookings_service
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
+  # Service 4: Reviews Service
+  reviews-service:
+    build: ./reviews
+    container_name: reviews_service
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
+networks:
+  meetingroom-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+

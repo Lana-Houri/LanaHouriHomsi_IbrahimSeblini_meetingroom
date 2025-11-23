@@ -8,7 +8,7 @@ def connect_to_db():
         password="password"
     )
 
-def get_users(user):
+def get_users():
     users= []
     try: 
         conn = connect_to_db()

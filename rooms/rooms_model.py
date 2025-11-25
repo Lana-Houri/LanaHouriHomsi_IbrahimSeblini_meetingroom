@@ -1,111 +1,144 @@
 import psycopg2
+import psycopg2.extras
+
 
 def connect_to_db():
     return psycopg2.connect(
         host="db",
-        database= "meetingroom",
+        database="meetingroom",
         user="admin",
-        password="password"
+        password="password",
+        cursor_factory=psycopg2.extras.RealDictCursor
     )
 
-
 def get_rooms():
-    rooms= []
-    try: 
+    try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute(
-            """ SELECT * FROM Rooms"""
-        ) 
-        rows = cur.fetchall()
-
-        for i in rows:
-            room = {}
-            room["room_id"] = i["room_id"]
-            room["room_name"] = i ["room_name"]
-            room["Capacity"] = i ["Capacity"]
-            room["room_location"] = i ["room_location"]
-            room["room_status"] = i ["room_status"]
-            rooms.append(room)
-    except:
-        rooms = []
-    return rooms
+        cur.execute("SELECT * FROM Rooms ORDER BY room_id")
+        return cur.fetchall()
+    except Exception as e:
+        print("get_rooms error:", e)
+        return []
+    finally:
+        conn.close()
 
 def get_room_by_name(room_name):
-    room = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM Rooms WHERE room_name = %s", (room_name,)
-        ) 
-        row = cur.fetchone()
-        room["room_id"] = row["room_id"]
-        room["room_name"] = row["room_name"]
-        room["Capacity"] = row["Capacity"]
-        room["room_location"] = row["room_location"]
-        room["room_status"] = row["room_status"]
-
-    except:
-        room ={}
-
-    return room
-        
-def insert_room(room):
-    inserted_room = {}
-    conn = connect_to_db()
-    cur = conn.cursor()
-
-    try:
-        cur.execute("""
-                INSERT INTO Rooms (room_name, Capacity, room_location, room_status) 
-                    VALUES (?,?,?,?)""", room['room_name'], room['Capacity'], room['room_location'], room['room_status']
-                    )
-        inserted_room = cur.fetchone()
-        conn.commit()
+        cur.execute("SELECT * FROM Rooms WHERE room_name = %s", (room_name,))
+        return cur.fetchone()
     except Exception as e:
-        conn.rollback()
-    
+        print("get_room_by_name error:", e)
+        return None
     finally:
         conn.close()
-    
-    return inserted_room
 
+def insert_room(room):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO Rooms (room_name, Capacity, room_location, equipment, room_status)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING room_id, room_name, Capacity, room_location, equipment, room_status
+        """, (
+            room["room_name"],
+            room["Capacity"],
+            room["room_location"],
+            room.get("equipment", None),
+            room.get("room_status", "Available")
+        ))
+
+        conn.commit()
+        return cur.fetchone()
+    except Exception as e:
+        print("insert_room error:", e)
+        conn.rollback()
+        return None
+    finally:
+        conn.close()
 
 def update_room(room):
-    updated_room = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute("UPDATE Rooms SET Capacity = %s, room_location = %s, room_status = %s WHERE room_name = %s",
-                    (room['Capacity'], room['room_location'], room['room_status'],)
-        )
+
+        cur.execute("""
+            UPDATE Rooms
+            SET Capacity = %s,
+                room_location = %s,
+                equipment = %s,
+                room_status = %s
+            WHERE room_name = %s
+            RETURNING room_id, room_name, Capacity, room_location, equipment, room_status
+        """, (
+            room["Capacity"],
+            room["room_location"],
+            room.get("equipment", None),
+            room["room_status"],
+            room["room_name"]
+        ))
+
         conn.commit()
-        updated_room = get_room_by_name(room["room_name"])
-
-    except:
+        return cur.fetchone()
+    except Exception as e:
+        print("update_room error:", e)
         conn.rollback()
-        updated_room = {}
-
+        return None
     finally:
         conn.close()
-
-    return updated_room
-
 
 def delete_room(room_name):
-    message = {}
     try:
         conn = connect_to_db()
-        conn.execute("DELETE from Rooms WHERE room_name= ?", (room_name,))
+        cur = conn.cursor()
+
+        cur.execute(
+            "DELETE FROM Rooms WHERE room_name = %s RETURNING room_name",
+            (room_name,)
+        )
+
+        deleted = cur.fetchone()
         conn.commit()
-        message["status"] = "Room deleted successfully"
-    except:
+
+        if deleted:
+            return {"message": "Room deleted", "room_name": deleted["room_name"]}
+        return None
+    except Exception as e:
+        print("delete_room error:", e)
         conn.rollback()
-        message["status"] = "Cannot delete room"
-    
+        return None
     finally:
         conn.close()
-    
-    return message
-        
+
+def search_rooms(capacity=None, location=None, equipment=None):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        query = "SELECT * FROM Rooms WHERE 1=1"
+        params = []
+
+        if capacity:
+            query += " AND Capacity >= %s"
+            params.append(capacity)
+
+        if location:
+            query += " AND room_location ILIKE %s"
+            params.append(f"%{location}%")
+
+        if equipment:
+            query += " AND equipment ILIKE %s"
+            params.append(f"%{equipment}%")
+
+        cur.execute(query, tuple(params))
+        return cur.fetchall()
+
+    except Exception as e:
+        print("search_rooms error:", e)
+        return []
+    finally:
+        conn.close()

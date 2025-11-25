@@ -1,188 +1,257 @@
 import psycopg2
+import psycopg2.extras
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def connect_to_db():
     return psycopg2.connect(
         host="db",
-        database= "meetingroom",
+        database="meetingroom",
         user="admin",
-        password="password"
+        password="password",
+        cursor_factory=psycopg2.extras.RealDictCursor
     )
 
 def get_users():
-    users= []
-    try: 
-        conn = connect_to_db()
-        cur = conn.cursor()
-        cur.execute(
-            """ SELECT * FROM Users"""
-        ) 
-        rows = cur.fetchall()
-
-        for i in rows:
-            user = {}
-            user["user_id"] = i["user_id"]
-            user["user_name"] = i ["user_name"]
-            user["username"] = i ["username"]
-            user["email"] = i ["email"]
-            user["password_hash"] = i ["password_hash"]
-            user["user_role"] = i ["user_role"]
-            users.append(user)
-    except:
-        users = []
-    return users
-
-def get_user_by_name(username):
-    user = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM Users WHERE user_name = %s", (username,)
-        ) 
-        row = cur.fetchone()
-        user["user_id"] = row["user_id"]
-        user["user_name"] = row["user_name"]
-        user["username"] = row["username"]
-        user["email"] = row["email"]
-        user["password_hash"] = row["password_hash"]
-        user["user_role"] = row["user_role"]
-    except:
-        user ={}
-    return user
-        
+        cur.execute("SELECT user_id, user_name, username, email, user_role FROM Users")
+        return cur.fetchall()
+    
+    except Exception as e:
+        print("get_users error:", e)
+        return []
+    
+    finally:
+        conn.close()
+
+
+def get_user_by_username(username):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute("SELECT user_id, user_name, username, email, user_role FROM Users WHERE username = %s", (username,))
+        return cur.fetchone()
+    
+    except Exception as e:
+        print("get_user_by_username error:", e)
+        return None
+    
+    finally:
+        conn.close()
 
 def insert_user(user):
-    inserted_user = {}
-    conn = connect_to_db()
-    cur = conn.cursor()
-
     try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        hashed = generate_password_hash(user['password'])
+
         cur.execute("""
-                INSERT INTO Users (user_name, username, email, password_hash, user_role) 
-                    VALUES (?,?,?,?,?)""", user['user_name'], user['username'], user['email'], user['password_hash'], user['user_role']
-                    )
-        inserted_user = cur.fetchone()
+            INSERT INTO Users (user_name, username, email, password_hash, user_role)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING user_id, user_name, username, email, user_role
+        """, (user['user_name'], user['username'], user['email'], hashed, user['user_role']))
+
         conn.commit()
+        return cur.fetchone()
+    
     except Exception as e:
+        print("insert_user error:", e)
         conn.rollback()
+        return None
     
     finally:
         conn.close()
-    
-    return inserted_user
 
 def update_user(user):
-    updated_user = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute("UPDATE users SET user_name = %s, username = %s, email = %s, password_hash = %s, user_role = %s WHERE username = %s",
-                    (user['user_name'], user['username'], user['email'], user['password_hash'], user['user_role'],)
-        )
+
+        cur.execute("""
+            UPDATE Users
+            SET user_name = %s,
+                username = %s,
+                email = %s,
+                user_role = %s
+            WHERE username = %s
+            RETURNING user_id, user_name, username, email, user_role
+        """, (user['user_name'], user['username'], user['email'], user['user_role'], user['username_old']))
+
         conn.commit()
-        updated_user = get_user_by_name(user["username"])
+        return cur.fetchone()
 
-    except:
+    except Exception as e:
+        print("update_user error:", e)
         conn.rollback()
-        updated_user = {}
-
+        return None
+    
     finally:
         conn.close()
 
-    return updated_user
-
-def update_role(user):
-    updated_user_role= {}
+def update_role(username, new_role):
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        cur.execute("UPDATE users SET user_role = %s WHERE username = %s",
-                    (user['user_role'], user['username'],)
-        )
-        updated_user_role = cur.fetchone()
+
+        cur.execute("""
+            UPDATE Users
+            SET user_role = %s
+            WHERE username = %s
+            RETURNING user_id, user_name, username, email, user_role
+        """, (new_role, username))
+
         conn.commit()
-
-    except:
+        return cur.fetchone()
+    
+    except Exception as e:
+        print("update_role error:", e)
         conn.rollback()
-        updated_user_role = {}
-
+        return None
+    
     finally:
         conn.close()
-
-    return updated_user_role
 
 def delete_user(username):
-    message = {}
     try:
         conn = connect_to_db()
-        conn.execute("DELETE from users WHERE username= ?", (username,))
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM Users WHERE username = %s RETURNING username", (username,))
+        deleted = cur.fetchone()
         conn.commit()
-        message["status"] = "User deleted successfully"
-    except:
+
+        return {"message": "User deleted", "username": deleted['username']} if deleted else None
+    
+    except Exception as e:
+        print("delete_user error:", e)
         conn.rollback()
-        message["status"] = "Cannot delete user"
+        return None
     
     finally:
         conn.close()
-    
-    return message
-
-from werkzeug.security import generate_password_hash
 
 def reset_password(username, new_password):
-    updated_user_pass = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        hashed_password = generate_password_hash(new_password)
-        
+
+        hashed = generate_password_hash(new_password)
+
         cur.execute("""
-            UPDATE users
+            UPDATE Users
             SET password_hash = %s
             WHERE username = %s
-            RETURNING user_id,user_name, username, email, user_role;
-        """, (hashed_password, username))
-        
-        updated_user_pass = cur.fetchone()
+            RETURNING user_id, user_name, username, email, user_role
+        """, (hashed, username))
+
         conn.commit()
-
-    except:
+        return cur.fetchone()
+    
+    except Exception as e:
+        print("reset_password error:", e)
         conn.rollback()
-        updated_user_pass = {}
-
+        return None
+    
     finally:
         conn.close()
 
-    return updated_user_pass
-
 def update_own_profile(user):
-    updated_user = {}
     try:
         conn = connect_to_db()
         cur = conn.cursor()
-        hashed_password = None
 
-        if user.get('password_hash'):
-            hashed_password = generate_password_hash(user['password'])
+        new_hash = generate_password_hash(user['password']) if 'password' in user else None
 
         cur.execute("""
-            UPDATE users
+            UPDATE Users
             SET user_name = %s,
                 email = %s,
                 password_hash = COALESCE(%s, password_hash)
             WHERE username = %s
-            RETURNING user_id, name, username, email, role, created_at;
-        """, (user['user_name'], user['email'], hashed_password, user['username']))
+            RETURNING user_id, user_name, username, email, user_role
+        """, (user['user_name'], user['email'], new_hash, user['username']))
 
-        updated_user = cur.fetchone()
         conn.commit()
-
-    except:
+        return cur.fetchone()
+    
+    except Exception as e:
+        print("update_own_profile error:", e)
         conn.rollback()
-
+        return None
+    
     finally:
         conn.close()
 
-    return updated_user
 
+def login_user(username, password):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT user_id, user_name, username, email, password_hash, user_role
+            FROM Users
+            WHERE username = %s
+        """, (username,))
         
+        user = cur.fetchone()
+        if not user:
+            return None
+
+        if not check_password_hash(user['password_hash'], password):
+            return False
+
+        return {
+            "user_id": user["user_id"],
+            "user_name": user["user_name"],
+            "username": user["username"],
+            "email": user["email"],
+            "user_role": user["user_role"]
+        }
+
+    except Exception as e:
+        print("login_user error:", e)
+        return None
+    finally:
+        conn.close()
+
+def get_booking_history(username):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        cur.execute("SELECT user_id FROM Users WHERE username = %s", (username,))
+        row = cur.fetchone()
+
+        if not row:
+            return None
+
+        user_id = row["user_id"]
+
+        cur.execute("""
+            SELECT 
+                b.booking_id,
+                b.booking_date,
+                b.start_time,
+                b.end_time,
+                b.status,
+                r.room_name,
+                r.room_location,
+                r.Capacity
+            FROM Bookings b
+            JOIN Rooms r ON b.room_id = r.room_id
+            WHERE b.user_id = %s
+            ORDER BY b.booking_date DESC, b.start_time DESC
+        """, (user_id,))
+
+        return cur.fetchall()
+
+    except Exception as e:
+        print("get_booking_history error:", e)
+        return None
+    finally:
+        conn.close()
+
+

@@ -58,6 +58,7 @@ def get_all_reviews() -> List[Dict]:
                 r.is_flagged,
                 r.flag_reason,
                 r.is_moderated,
+                r.is_hidden,
                 r.moderated_by,
                 r.created_at,
                 r.updated_at,
@@ -105,6 +106,7 @@ def get_review_by_id(review_id: int) -> Dict:
                 r.is_flagged,
                 r.flag_reason,
                 r.is_moderated,
+                r.is_hidden,
                 r.moderated_by,
                 r.created_at,
                 r.updated_at,
@@ -156,6 +158,7 @@ def get_reviews_by_room(room_id: int, include_flagged: bool = False) -> List[Dic
                     r.is_flagged,
                     r.flag_reason,
                     r.is_moderated,
+                    r.is_hidden,
                     r.moderated_by,
                     r.created_at,
                     r.updated_at,
@@ -180,6 +183,7 @@ def get_reviews_by_room(room_id: int, include_flagged: bool = False) -> List[Dic
                     r.is_flagged,
                     r.flag_reason,
                     r.is_moderated,
+                    r.is_hidden,
                     r.moderated_by,
                     r.created_at,
                     r.updated_at,
@@ -190,7 +194,9 @@ def get_reviews_by_room(room_id: int, include_flagged: bool = False) -> List[Dic
                 FROM Reviews r
                 JOIN Users u ON r.user_id = u.user_id
                 JOIN Rooms rm ON r.room_id = rm.room_id
-                WHERE r.room_id = %s AND (r.is_flagged = FALSE OR r.is_flagged IS NULL)
+                WHERE r.room_id = %s 
+                AND (r.is_flagged = FALSE OR r.is_flagged IS NULL)
+                AND (r.is_hidden = FALSE OR r.is_hidden IS NULL)
                 ORDER BY r.created_at DESC
             """, (room_id,))
         
@@ -229,6 +235,7 @@ def get_user_reviews(user_id: int) -> List[Dict]:
                 r.is_flagged,
                 r.flag_reason,
                 r.is_moderated,
+                r.is_hidden,
                 r.moderated_by,
                 r.created_at,
                 r.updated_at,
@@ -274,6 +281,7 @@ def get_flagged_reviews() -> List[Dict]:
                 r.is_flagged,
                 r.flag_reason,
                 r.is_moderated,
+                r.is_hidden,
                 r.moderated_by,
                 r.created_at,
                 r.updated_at,
@@ -375,7 +383,7 @@ def create_review(review_data: Dict) -> Dict:
         cur.execute("""
             INSERT INTO Reviews (user_id, room_id, rating, comment)
             VALUES (%s, %s, %s, %s)
-            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, is_moderated, created_at, updated_at
+            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, is_moderated, is_hidden, created_at, updated_at
         """, (user_id, room_id, rating, sanitized_comment))
         
         row = cur.fetchone()
@@ -394,6 +402,7 @@ def create_review(review_data: Dict) -> Dict:
                     r.is_flagged,
                     r.flag_reason,
                     r.is_moderated,
+                    r.is_hidden,
                     r.moderated_by,
                     r.created_at,
                     r.updated_at,
@@ -493,7 +502,7 @@ def update_review(review_id: int, review_data: Dict, user_id: Optional[int] = No
             UPDATE Reviews 
             SET {', '.join(update_fields)}
             WHERE review_id = %s
-            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, flag_reason, is_moderated, moderated_by, created_at, updated_at
+            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, flag_reason, is_moderated, is_hidden, moderated_by, created_at, updated_at
         """, tuple(params))
         
         row = cur.fetchone()
@@ -764,4 +773,249 @@ def remove_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
             conn.close()
     
     return result
+
+
+def restore_review(review_id: int, admin_id: Optional[int] = None) -> Dict:
+    """
+    Restore a removed/hidden review (Admin only).
+    
+    Args:
+        review_id: The ID of the review to restore.
+        admin_id: ID of the admin restoring the review.
+        
+    Returns:
+        Success message or error.
+    """
+    result = {}
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Check if review exists
+        cur.execute("SELECT is_moderated, is_hidden FROM Reviews WHERE review_id = %s", (review_id,))
+        existing = cur.fetchone()
+        
+        if not existing:
+            return {"error": "Review not found", "status": "error"}
+        
+        existing = dict(existing)
+        
+        # Restore review
+        cur.execute("""
+            UPDATE Reviews 
+            SET is_moderated = FALSE,
+                is_hidden = FALSE,
+                is_flagged = FALSE,
+                flag_reason = NULL,
+                moderated_by = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE review_id = %s
+            RETURNING review_id, is_moderated, is_hidden, is_flagged
+        """, (review_id,))
+        
+        row = cur.fetchone()
+        conn.commit()
+        
+        if row:
+            result = {"message": "Review restored successfully", "review_id": review_id, "status": "success"}
+        else:
+            result = {"error": "Failed to restore review", "status": "error"}
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        result = {"error": f"Failed to restore review: {str(e)}", "status": "error"}
+    finally:
+        if conn:
+            conn.close()
+    
+    return result
+
+
+def hide_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
+    """
+    Hide a review (Moderator/Admin only).
+    Hidden reviews are not shown to regular users.
+    
+    Args:
+        review_id: The ID of the review to hide.
+        moderator_id: ID of the moderator/admin hiding the review.
+        
+    Returns:
+        Success message or error.
+    """
+    result = {}
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Check if review exists
+        cur.execute("SELECT is_hidden FROM Reviews WHERE review_id = %s", (review_id,))
+        existing = cur.fetchone()
+        
+        if not existing:
+            return {"error": "Review not found", "status": "error"}
+        
+        if existing['is_hidden']:
+            return {"error": "Review is already hidden", "status": "error"}
+        
+        # Hide review
+        cur.execute("""
+            UPDATE Reviews 
+            SET is_hidden = TRUE,
+                is_moderated = TRUE,
+                moderated_by = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE review_id = %s
+            RETURNING review_id, is_hidden
+        """, (moderator_id, review_id))
+        
+        row = cur.fetchone()
+        conn.commit()
+        
+        if row:
+            result = {"message": "Review hidden successfully", "review_id": review_id, "status": "success"}
+        else:
+            result = {"error": "Failed to hide review", "status": "error"}
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        result = {"error": f"Failed to hide review: {str(e)}", "status": "error"}
+    finally:
+        if conn:
+            conn.close()
+    
+    return result
+
+
+def show_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
+    """
+    Show a hidden review (Moderator/Admin only).
+    
+    Args:
+        review_id: The ID of the review to show.
+        moderator_id: ID of the moderator/admin showing the review.
+        
+    Returns:
+        Success message or error.
+    """
+    result = {}
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Check if review exists
+        cur.execute("SELECT is_hidden FROM Reviews WHERE review_id = %s", (review_id,))
+        existing = cur.fetchone()
+        
+        if not existing:
+            return {"error": "Review not found", "status": "error"}
+        
+        if not existing['is_hidden']:
+            return {"error": "Review is not hidden", "status": "error"}
+        
+        # Show review
+        cur.execute("""
+            UPDATE Reviews 
+            SET is_hidden = FALSE,
+                moderated_by = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE review_id = %s
+            RETURNING review_id, is_hidden
+        """, (moderator_id, review_id))
+        
+        row = cur.fetchone()
+        conn.commit()
+        
+        if row:
+            result = {"message": "Review shown successfully", "review_id": review_id, "status": "success"}
+        else:
+            result = {"error": "Failed to show review", "status": "error"}
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        result = {"error": f"Failed to show review: {str(e)}", "status": "error"}
+    finally:
+        if conn:
+            conn.close()
+    
+    return result
+
+
+def get_review_reports() -> Dict:
+    """
+    Get review moderation reports for moderators.
+    Includes statistics on flagged, hidden, and moderated reviews.
+    
+    Returns:
+        Dictionary with review statistics and reports.
+    """
+    reports = {}
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Get total reviews
+        cur.execute("SELECT COUNT(*) as total FROM Reviews")
+        total = cur.fetchone()['total']
+        
+        # Get flagged reviews count
+        cur.execute("SELECT COUNT(*) as flagged FROM Reviews WHERE is_flagged = TRUE")
+        flagged = cur.fetchone()['flagged']
+        
+        # Get hidden reviews count
+        cur.execute("SELECT COUNT(*) as hidden FROM Reviews WHERE is_hidden = TRUE")
+        hidden = cur.fetchone()['hidden']
+        
+        # Get moderated reviews count
+        cur.execute("SELECT COUNT(*) as moderated FROM Reviews WHERE is_moderated = TRUE")
+        moderated = cur.fetchone()['moderated']
+        
+        # Get average rating
+        cur.execute("SELECT AVG(rating) as avg_rating FROM Reviews WHERE is_hidden = FALSE")
+        avg_rating = cur.fetchone()['avg_rating']
+        
+        # Get reviews by rating
+        cur.execute("""
+            SELECT rating, COUNT(*) as count 
+            FROM Reviews 
+            WHERE is_hidden = FALSE
+            GROUP BY rating 
+            ORDER BY rating DESC
+        """)
+        rating_distribution = [dict(row) for row in cur.fetchall()]
+        
+        # Get recent flagged reviews (last 10)
+        cur.execute("""
+            SELECT review_id, user_id, room_id, rating, is_flagged, flag_reason, created_at
+            FROM Reviews
+            WHERE is_flagged = TRUE
+            ORDER BY created_at DESC
+            LIMIT 10
+        """)
+        recent_flagged = [dict(row) for row in cur.fetchall()]
+        
+        reports = {
+            "total_reviews": total,
+            "flagged_reviews": flagged,
+            "hidden_reviews": hidden,
+            "moderated_reviews": moderated,
+            "average_rating": float(avg_rating) if avg_rating else 0,
+            "rating_distribution": rating_distribution,
+            "recent_flagged": recent_flagged
+        }
+        
+    except Exception as e:
+        print(f"Error generating reports: {e}")
+        reports = {"error": f"Failed to generate reports: {str(e)}"}
+    finally:
+        if 'conn' in locals():
+            conn.close()
+    
+    return reports
 

@@ -39,6 +39,7 @@ CREATE TABLE Reviews(
     is_flagged BOOLEAN DEFAULT FALSE,
     flag_reason TEXT,
     is_moderated BOOLEAN DEFAULT FALSE,
+    is_hidden BOOLEAN DEFAULT FALSE,
     moderated_by INT REFERENCES Users(user_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

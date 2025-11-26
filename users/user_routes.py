@@ -19,7 +19,19 @@ def api_get_user(username):
 @user_bp.route("/admin/users/add", methods=["POST"])
 def api_add_user():
     user = request.get_json()
-    return jsonify(insert_user(user))
+    if not user:
+        return jsonify({"error": "No data provided"}), 400
+    
+    result = insert_user(user)
+    
+    if result is None:
+        return jsonify({"error": "Failed to insert user"}), 500
+    
+    if isinstance(result, dict) and "error" in result:
+        status_code = 400 if "constraint" in result.get("error", "").lower() or "already exists" in result.get("error", "").lower() or "Missing required field" in result.get("error", "") else 500
+        return jsonify(result), status_code
+    
+    return jsonify(result), 201
 
 @user_bp.route("/admin/user/update", methods=["PUT"])
 def api_update_user():

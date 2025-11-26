@@ -1,17 +1,19 @@
 import psycopg2
 import psycopg2.extras
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 def connect_to_db():
     return psycopg2.connect(
-        host="db",
-        database="meetingroom",
-        user="admin",
-        password="password",
+        host=os.getenv("DB_HOST", "db"),
+        database=os.getenv("DB_NAME", "meetingroom"),
+        user=os.getenv("DB_USER", "admin"),
+        password=os.getenv("DB_PASSWORD", "password"),
         cursor_factory=psycopg2.extras.RealDictCursor
     )
 
 def get_users():
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -23,10 +25,12 @@ def get_users():
         return []
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 
 def get_user_by_username(username):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -38,9 +42,11 @@ def get_user_by_username(username):
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def insert_user(user):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -55,16 +61,19 @@ def insert_user(user):
 
         conn.commit()
         return cur.fetchone()
-    
+        
     except Exception as e:
         print("insert_user error:", e)
-        conn.rollback()
-        return None
+        if conn:
+            conn.rollback()
+        return {"error": "Failed to insert user", "details": str(e)}
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def update_user(user):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -84,13 +93,16 @@ def update_user(user):
 
     except Exception as e:
         print("update_user error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def update_role(username, new_role):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -107,13 +119,16 @@ def update_role(username, new_role):
     
     except Exception as e:
         print("update_role error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def delete_user(username):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -126,13 +141,16 @@ def delete_user(username):
     
     except Exception as e:
         print("delete_user error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def reset_password(username, new_password):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -151,13 +169,16 @@ def reset_password(username, new_password):
     
     except Exception as e:
         print("reset_password error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def update_own_profile(user):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -178,14 +199,17 @@ def update_own_profile(user):
     
     except Exception as e:
         print("update_own_profile error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 
 def login_user(username, password):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -215,9 +239,11 @@ def login_user(username, password):
         print("login_user error:", e)
         return None
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def get_booking_history(username):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -252,6 +278,5 @@ def get_booking_history(username):
         print("get_booking_history error:", e)
         return None
     finally:
-        conn.close()
-
-
+        if conn:
+            conn.close()

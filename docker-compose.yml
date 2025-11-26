@@ -1,9 +1,8 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: meetingroom_db
     restart: always
     environment:
@@ -17,11 +16,12 @@ services:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d meetingroom"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - meetingroom-network
 
-  # Service 1: Users Service
   users-service:
     build: ./users
     container_name: users_service
@@ -29,18 +29,17 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - FLASK_ENV=development
-      - DB_HOST=db
-      - DB_NAME=meetingroom
-      - DB_USER=admin
-      - DB_PASSWORD=password
+      FLASK_ENV: development
+      DB_HOST: db
+      DB_NAME: meetingroom
+      DB_USER: admin
+      DB_PASSWORD: password
     depends_on:
       db:
         condition: service_healthy
     networks:
       - meetingroom-network
 
-  # Service 2: Rooms Service
   rooms-service:
     build: ./rooms
     container_name: rooms_service
@@ -59,48 +58,55 @@ services:
     networks:
       - meetingroom-network
 
-  # Service 3: Bookings Service
-  bookings-service:
-    build: ./bookings
-    container_name: bookings_service
-    restart: always
-    ports:
-      - "5002:5002"
-    environment:
-      - FLASK_ENV=development
-      - DB_HOST=db
-      - DB_NAME=meetingroom
-      - DB_USER=admin
-      - DB_PASSWORD=password
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - meetingroom-network
-
-  # Service 4: Reviews Service
-  reviews-service:
-    build: ./reviews
-    container_name: reviews_service
-    restart: always
-    ports:
-      - "5003:5003"
-    environment:
-      - FLASK_ENV=development
-      - DB_HOST=db
-      - DB_NAME=meetingroom
-      - DB_USER=admin
-      - DB_PASSWORD=password
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - meetingroom-network
-
 networks:
   meetingroom-network:
     driver: bridge
 
 volumes:
   pgdata:
+
+#   # Service 3: Bookings Service
+#   bookings-service:
+#     build: ./bookings
+#     container_name: bookings_service
+#     restart: always
+#     ports:
+#       - "5002:5002"
+#     environment:
+#       - FLASK_ENV=development
+#       - DB_HOST=db
+#       - DB_NAME=meetingroom
+#       - DB_USER=admin
+#       - DB_PASSWORD=password
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     networks:
+#       - meetingroom-network
+
+#   # Service 4: Reviews Service
+#   reviews-service:
+#     build: ./reviews
+#     container_name: reviews_service
+#     restart: always
+#     ports:
+#       - "5003:5003"
+#     environment:
+#       - FLASK_ENV=development
+#       - DB_HOST=db
+#       - DB_NAME=meetingroom
+#       - DB_USER=admin
+#       - DB_PASSWORD=password
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     networks:
+#       - meetingroom-network
+
+# networks:
+#   meetingroom-network:
+#     driver: bridge
+
+# volumes:
+#   pgdata:
 

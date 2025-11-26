@@ -1,17 +1,46 @@
 import psycopg2
 import psycopg2.extras
+import os
 
 
 def connect_to_db():
     return psycopg2.connect(
-        host="db",
-        database="meetingroom",
-        user="admin",
-        password="password",
+        host=os.getenv("DB_HOST", "db"),
+        database=os.getenv("DB_NAME", "meetingroom"),
+        user=os.getenv("DB_USER", "admin"),
+        password=os.getenv("DB_PASSWORD", "password"),
         cursor_factory=psycopg2.extras.RealDictCursor
     )
 
+
+def ensure_room_status_constraint():
+    """Allow legacy databases to accept 'Out-of-Service'."""
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE Rooms DROP CONSTRAINT IF EXISTS rooms_room_status_check")
+        cur.execute(
+            """
+            ALTER TABLE Rooms
+            ADD CONSTRAINT rooms_room_status_check
+            CHECK (room_status IN ('Available', 'Booked', 'Out-of-Service'))
+            """
+        )
+        conn.commit()
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print("ensure_room_status_constraint error:", e)
+    finally:
+        if conn:
+            conn.close()
+
+ensure_room_status_constraint()
+
+
 def get_rooms():
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -21,9 +50,11 @@ def get_rooms():
         print("get_rooms error:", e)
         return []
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def get_room_by_name(room_name):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -33,9 +64,11 @@ def get_room_by_name(room_name):
         print("get_room_by_name error:", e)
         return None
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def insert_room(room):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -56,15 +89,33 @@ def insert_room(room):
         return cur.fetchone()
     except Exception as e:
         print("insert_room error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def update_room(room):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
+
+        capacity = room.get("Capacity") or room.get("capacity")
+        room_location = room.get("room_location")
+        equipment = room.get("equipment", None)
+        room_status = room.get("room_status")
+        room_name = room.get("room_name")
+
+        if capacity is None:
+            return {"error": "Missing required field: Capacity"}
+        if room_location is None:
+            return {"error": "Missing required field: room_location"}
+        if room_status is None:
+            return {"error": "Missing required field: room_status"}
+        if room_name is None:
+            return {"error": "Missing required field: room_name"}
 
         cur.execute("""
             UPDATE Rooms
@@ -75,23 +126,36 @@ def update_room(room):
             WHERE room_name = %s
             RETURNING room_id, room_name, Capacity, room_location, equipment, room_status
         """, (
-            room["Capacity"],
-            room["room_location"],
-            room.get("equipment", None),
-            room["room_status"],
-            room["room_name"]
+            capacity,
+            room_location,
+            equipment,
+            room_status,
+            room_name
         ))
 
         conn.commit()
-        return cur.fetchone()
+        result = cur.fetchone()
+        
+        if result is None:
+            return None
+        
+        return result
+    except KeyError as e:
+        print("update_room missing field error:", e)
+        if conn:
+            conn.rollback()
+        return {"error": f"Missing required field: {str(e)}"}
     except Exception as e:
         print("update_room error:", e)
-        conn.rollback()
-        return None
+        if conn:
+            conn.rollback()
+        return {"error": "Failed to update room", "details": str(e)}
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def delete_room(room_name):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -109,12 +173,15 @@ def delete_room(room_name):
         return None
     except Exception as e:
         print("delete_room error:", e)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         return None
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def search_rooms(capacity=None, location=None, equipment=None):
+    conn = None
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -141,4 +208,5 @@ def search_rooms(capacity=None, location=None, equipment=None):
         print("search_rooms error:", e)
         return []
     finally:
-        conn.close()
+        if conn:
+            conn.close()

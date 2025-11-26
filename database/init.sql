@@ -13,7 +13,7 @@ CREATE TABLE Rooms(
     Capacity INT NOT NULL,
     room_location VARCHAR(100) NOT NULL,
     equipment TEXT,
-    room_status VARCHAR(50) CHECK (room_status IN ('Available', 'Booked')) DEFAULT 'Available'
+    room_status VARCHAR(50) CHECK (room_status IN ('Available', 'Booked', 'Out-of-Service')) DEFAULT 'Available'
 );
 
 CREATE TABLE Bookings(

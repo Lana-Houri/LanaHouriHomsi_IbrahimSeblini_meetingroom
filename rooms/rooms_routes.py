@@ -94,12 +94,45 @@ def api_toggle_status(room_name):
     if not room:
         return jsonify({"error": "Room not found"}), 404
 
-    new_status = request.get_json().get("room_status")
-    if new_status not in ["Available", "Booked", "Out-of-Service"]:
-        return jsonify({"error": "Invalid status"}), 400
+    data = request.get_json() or {}
+    new_status = data.get("room_status")
+    
+    if not new_status:
+        current_status = room.get("room_status", "Available")
+        new_status = "Booked" if current_status == "Available" else "Available"
+    
+    if new_status not in ["Available", "Booked"]:
+        return jsonify({"error": f"Invalid status: '{new_status}'. Valid statuses are: 'Available', 'Booked'"}), 400
 
     room["room_status"] = new_status
+
+    field_aliases = {
+        "Capacity": ["Capacity", "capacity"],
+        "room_location": ["room_location", "Room_location"],
+        "room_name": ["room_name", "Room_Name"]
+    }
+    missing_fields = []
+    for canonical, aliases in field_aliases.items():
+        value_found = None
+        for key in aliases:
+            if key in room and room[key] is not None:
+                value_found = room[key]
+                break
+        if value_found is None:
+            missing_fields.append(canonical)
+        else:
+            room[canonical] = value_found
+
+    if missing_fields:
+        return jsonify({"error": f"Missing required fields in room data: {missing_fields}"}), 500
+    
     updated = update_room(room)
+    
+    if updated is None:
+        return jsonify({"error": "Room not found or update failed"}), 404
+    
+    if isinstance(updated, dict) and "error" in updated:
+        return jsonify(updated), 500
 
     return jsonify(updated), 200
 
@@ -115,6 +148,13 @@ def fm_mark_out_of_service(room_name):
 
     room["room_status"] = "Out-of-Service"
     updated = update_room(room)
+
+    if updated is None:
+        return jsonify({"error": "Room not found or update failed"}), 404
+
+    if isinstance(updated, dict) and "error" in updated:
+        return jsonify(updated), 500
+
     return jsonify(updated), 200
 
 @room_bp.route("/auditor/rooms", methods=["GET"])

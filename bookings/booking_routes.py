@@ -11,7 +11,11 @@ from booking_model import (
     check_room_availability,
     create_booking,
     update_booking,
-    cancel_booking
+    cancel_booking,
+    get_conflicting_bookings,
+    resolve_booking_conflict,
+    get_stuck_bookings,
+    unblock_stuck_booking
 )
 
 
@@ -231,6 +235,100 @@ def api_admin_update_booking(booking_id):
         return jsonify({"error": "No booking data provided"}), 400
     
     result = update_booking(booking_id, booking_data, user_id, is_admin=True)
+    
+    if result.get('error'):
+        return jsonify(result), 400
+    
+    return jsonify(result), 200
+
+
+@booking_bp.route('/api/admin/bookings/conflicts', methods=['GET'])
+def api_get_conflicts():
+    """
+    Get conflicting bookings for a time slot (Admin only).
+    Query parameters: room_id, date, start_time, end_time
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can view conflicts"}), 403
+    
+    room_id = request.args.get('room_id')
+    booking_date = request.args.get('date')
+    start_time = request.args.get('start_time')
+    end_time = request.args.get('end_time')
+    
+    if not all([room_id, booking_date, start_time, end_time]):
+        return jsonify({"error": "Missing required parameters: room_id, date, start_time, end_time"}), 400
+    
+    try:
+        room_id = int(room_id)
+        conflicts = get_conflicting_bookings(room_id, booking_date, start_time, end_time)
+        return jsonify({
+            "conflicts": conflicts,
+            "count": len(conflicts),
+            "room_id": room_id,
+            "date": booking_date,
+            "start_time": start_time,
+            "end_time": end_time
+        }), 200
+    except ValueError:
+        return jsonify({"error": "Invalid room_id"}), 400
+
+
+@booking_bp.route('/api/admin/bookings/<int:booking_id>/resolve', methods=['PUT'])
+def api_resolve_conflict(booking_id):
+    """
+    Resolve a booking conflict (Admin only).
+    Body: {"action": "cancel" | "modify" | "override"}
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can resolve conflicts"}), 403
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    action = data.get('action', 'cancel')
+    result = resolve_booking_conflict(booking_id, action, user_id)
+    
+    if result.get('error'):
+        return jsonify(result), 400
+    
+    return jsonify(result), 200
+
+
+@booking_bp.route('/api/admin/bookings/stuck', methods=['GET'])
+def api_get_stuck_bookings():
+    """
+    Get stuck bookings that need resolution (Admin only).
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can view stuck bookings"}), 403
+    
+    stuck = get_stuck_bookings()
+    return jsonify({"stuck_bookings": stuck, "count": len(stuck)}), 200
+
+
+@booking_bp.route('/api/admin/bookings/<int:booking_id>/unblock', methods=['PUT'])
+def api_unblock_booking(booking_id):
+    """
+    Unblock a stuck booking (Admin only).
+    Body: {"action": "complete" | "cancel"}
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can unblock bookings"}), 403
+    
+    data = request.get_json() or {}
+    action = data.get('action', 'complete')
+    
+    result = unblock_stuck_booking(booking_id, action)
     
     if result.get('error'):
         return jsonify(result), 400

@@ -14,7 +14,11 @@ from review_model import (
     delete_review,
     flag_review,
     unflag_review,
-    remove_review
+    remove_review,
+    restore_review,
+    hide_review,
+    show_review,
+    get_review_reports
 )
 
 

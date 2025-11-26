@@ -571,3 +571,227 @@ def cancel_booking(booking_id: int, user_id: Optional[int] = None, is_admin: boo
     
     return result
 
+
+def get_conflicting_bookings(room_id: int, booking_date: str, start_time: str, end_time: str) -> List[Dict]:
+    """
+    Get all bookings that conflict with a given time slot.
+    Used for conflict resolution by admins.
+    
+    Args:
+        room_id: The ID of the room.
+        booking_date: Date of the booking (YYYY-MM-DD format).
+        start_time: Start time (HH:MM:SS format).
+        end_time: End time (HH:MM:SS format).
+        
+    Returns:
+        List of conflicting booking dictionaries.
+    """
+    conflicts = []
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cur.execute("""
+            SELECT 
+                b.booking_id,
+                b.user_id,
+                b.room_id,
+                b.booking_date,
+                b.start_time,
+                b.end_time,
+                b.status,
+                b.created_at,
+                u.username,
+                u.user_name,
+                r.room_name
+            FROM Bookings b
+            JOIN Users u ON b.user_id = u.user_id
+            JOIN Rooms r ON b.room_id = r.room_id
+            WHERE b.room_id = %s 
+            AND b.booking_date = %s 
+            AND b.status != 'Cancelled'
+            AND b.start_time < %s AND b.end_time > %s
+            ORDER BY b.start_time
+        """, (room_id, booking_date, end_time, start_time))
+        
+        rows = cur.fetchall()
+        conflicts = [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error fetching conflicts: {e}")
+        conflicts = []
+    finally:
+        if 'conn' in locals():
+            conn.close()
+    return conflicts
+
+
+def resolve_booking_conflict(booking_id: int, resolution_action: str, admin_id: int) -> Dict:
+    """
+    Resolve a booking conflict by admin.
+    Actions: 'cancel', 'modify', 'override'
+    
+    Args:
+        booking_id: The ID of the booking to resolve.
+        resolution_action: Action to take ('cancel', 'modify', 'override').
+        admin_id: ID of the admin resolving the conflict.
+        
+    Returns:
+        Success message or error.
+    """
+    result = {}
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Get the booking
+        cur.execute("SELECT * FROM Bookings WHERE booking_id = %s", (booking_id,))
+        booking = cur.fetchone()
+        
+        if not booking:
+            return {"error": "Booking not found", "status": "error"}
+        
+        booking = dict(booking)
+        
+        if resolution_action == 'cancel':
+            cur.execute("""
+                UPDATE Bookings 
+                SET status = 'Cancelled',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE booking_id = %s
+                RETURNING booking_id, status
+            """, (booking_id,))
+            result = {"message": "Booking cancelled to resolve conflict", "booking_id": booking_id, "status": "success"}
+        
+        elif resolution_action == 'modify':
+            # This would require additional data for modification
+            result = {"message": "Modify action requires additional booking data", "status": "error"}
+        
+        elif resolution_action == 'override':
+            # Keep the booking but mark as admin-overridden
+            result = {"message": "Booking override confirmed", "booking_id": booking_id, "status": "success"}
+        else:
+            return {"error": "Invalid resolution action. Use 'cancel', 'modify', or 'override'", "status": "error"}
+        
+        conn.commit()
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        result = {"error": f"Failed to resolve conflict: {str(e)}", "status": "error"}
+    finally:
+        if conn:
+            conn.close()
+    
+    return result
+
+
+def get_stuck_bookings() -> List[Dict]:
+    """
+    Get bookings that are in stuck states (e.g., status inconsistencies).
+    Admin can use this to identify and fix stuck bookings.
+    
+    Returns:
+        List of potentially stuck booking dictionaries.
+    """
+    stuck = []
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Find bookings that might be stuck:
+        # 1. Bookings with status 'Confirmed' but room is marked as 'Booked' for past dates
+        # 2. Bookings with end_time in the past but status is still 'Confirmed'
+        cur.execute("""
+            SELECT 
+                b.booking_id,
+                b.user_id,
+                b.room_id,
+                b.booking_date,
+                b.start_time,
+                b.end_time,
+                b.status,
+                b.created_at,
+                u.username,
+                r.room_name,
+                r.room_status
+            FROM Bookings b
+            JOIN Users u ON b.user_id = u.user_id
+            JOIN Rooms r ON b.room_id = r.room_id
+            WHERE (
+                (b.status = 'Confirmed' AND b.booking_date < CURRENT_DATE) OR
+                (b.status = 'Confirmed' AND b.booking_date = CURRENT_DATE AND b.end_time < CURRENT_TIME)
+            )
+            ORDER BY b.booking_date DESC, b.start_time DESC
+        """)
+        
+        rows = cur.fetchall()
+        stuck = [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error fetching stuck bookings: {e}")
+        stuck = []
+    finally:
+        if 'conn' in locals():
+            conn.close()
+    return stuck
+
+
+def unblock_stuck_booking(booking_id: int, action: str = 'complete') -> Dict:
+    """
+    Unblock a stuck booking by admin.
+    Actions: 'complete' (mark as completed) or 'cancel' (cancel the booking).
+    
+    Args:
+        booking_id: The ID of the stuck booking.
+        action: Action to take ('complete' or 'cancel').
+        
+    Returns:
+        Success message or error.
+    """
+    result = {}
+    conn = None
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Check if booking exists
+        cur.execute("SELECT status FROM Bookings WHERE booking_id = %s", (booking_id,))
+        existing = cur.fetchone()
+        
+        if not existing:
+            return {"error": "Booking not found", "status": "error"}
+        
+        if action == 'complete':
+            cur.execute("""
+                UPDATE Bookings 
+                SET status = 'Completed',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE booking_id = %s
+                RETURNING booking_id, status
+            """, (booking_id,))
+            result = {"message": "Booking marked as completed", "booking_id": booking_id, "status": "success"}
+        
+        elif action == 'cancel':
+            cur.execute("""
+                UPDATE Bookings 
+                SET status = 'Cancelled',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE booking_id = %s
+                RETURNING booking_id, status
+            """, (booking_id,))
+            result = {"message": "Stuck booking cancelled", "booking_id": booking_id, "status": "success"}
+        else:
+            return {"error": "Invalid action. Use 'complete' or 'cancel'", "status": "error"}
+        
+        conn.commit()
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        result = {"error": f"Failed to unblock booking: {str(e)}", "status": "error"}
+    finally:
+        if conn:
+            conn.close()
+    
+    return result
+

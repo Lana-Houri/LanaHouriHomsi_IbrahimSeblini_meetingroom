@@ -64,7 +64,6 @@ def api_get_booking(booking_id):
     if not booking:
         return jsonify({"error": "Booking not found"}), 404
     
-    # Authorization: users can view their own bookings, admins can view any
     if user_id and user_role not in ['Admin', 'Facility Manager', 'Auditor']:
         if booking.get('user_id') != user_id:
             return jsonify({"error": "Unauthorized: You can only view your own bookings"}), 403

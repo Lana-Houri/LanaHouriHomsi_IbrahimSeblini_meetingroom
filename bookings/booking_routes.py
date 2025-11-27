@@ -49,13 +49,37 @@ booking_bp = Blueprint('booking_bp', __name__)
 limiter = None
 
 def init_limiter(app_limiter):
-    """Initialize rate limiter for this blueprint."""
+    """
+    Initialize rate limiter for this blueprint.
+    
+    Functionality:
+        Sets the global rate limiter instance for the booking blueprint.
+        This allows rate limiting to be applied to routes if configured.
+    
+    Parameters:
+        app_limiter: The rate limiter instance from the Flask app.
+    
+    Returns:
+        None
+    """
     global limiter
     limiter = app_limiter
 
 
 def apply_rate_limit_if_available(limit_str: str):
-    """Helper to apply rate limit if limiter is available."""
+    """
+    Helper to apply rate limit if limiter is available.
+    
+    Functionality:
+        Returns a rate limit decorator if limiter is configured,
+        otherwise returns a no-op decorator that does nothing.
+    
+    Parameters:
+        limit_str (str): Rate limit string (e.g., "100/hour", "50/minute").
+    
+    Returns:
+        function: Rate limit decorator if limiter exists, no-op decorator otherwise.
+    """
     if limiter:
         return limiter.limit(limit_str)
     return lambda f: f  # No-op decorator if limiter not available
@@ -64,12 +88,29 @@ def apply_rate_limit_if_available(limit_str: str):
 def token_required(f):
     """
     Decorator that validates JWT tokens from the Authorization header.
-    Extracts user information from the token and stores it in request.user.
     
-    Token format: Authorization: Bearer <token>
+    Functionality:
+        Validates JWT tokens from the Authorization header in the format
+        "Bearer <token>". Extracts user information (username, role) from the
+        token and stores it in request.user for use in route handlers.
+        Returns 401 Unauthorized if token is missing, invalid, or expired.
+    
+    Parameters:
+        f (function): The route handler function to be decorated.
     
     Returns:
-        401 Unauthorized if token is missing, invalid, or expired
+        function: Decorated function that validates JWT tokens before execution.
+        If validation fails, returns JSON response with error message and 401 status.
+    
+    Token Format:
+        Authorization: Bearer <token>
+    
+    Raises:
+        Returns 401 if:
+            - Token is missing
+            - Token format is invalid
+            - Token is expired
+            - Token is invalid
     """
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -110,13 +151,23 @@ def token_required(f):
 def role_required(*roles):
     """
     Decorator that ensures the user has one of the required roles.
-    Must be used after @token_required decorator.
     
-    Args:
-        *roles: Variable number of allowed role names (e.g., "Admin", "Facility Manager")
+    Functionality:
+        Checks if the authenticated user's role (from JWT token) matches
+        one of the allowed roles. Must be used after @token_required decorator.
+        Returns 403 Forbidden if user's role is not in the allowed roles list.
+    
+    Parameters:
+        *roles (str): Variable number of allowed role names.
+            Examples: "Admin", "Facility Manager", "Auditor", "regular user"
     
     Returns:
-        403 Forbidden if user's role is not in the allowed roles list
+        function: Decorator function that checks user role before execution.
+        If role check fails, returns JSON response with error message and 403 status.
+    
+    Raises:
+        Returns 401 if user information is not found in token.
+        Returns 403 if user's role is not in the allowed roles list.
     """
     def decorator(f):
         @wraps(f)
@@ -139,9 +190,22 @@ def role_required(*roles):
 
 def get_user_id_from_token():
     """
-    Get user_id from JWT token.
-    Note: JWT token contains username, so we need to look up user_id from database.
-    For better performance, consider including user_id in the JWT token payload.
+    Get user_id from JWT token by looking up username in database.
+    
+    Functionality:
+        Extracts username from the JWT token stored in request.user and
+        performs a database lookup to retrieve the corresponding user_id.
+        This is necessary because JWT tokens contain username, not user_id.
+    
+    Parameters:
+        None (uses request.user from token_required decorator)
+    
+    Returns:
+        int or None: The user_id if found in database, None otherwise.
+    
+    Note:
+        For better performance, consider including user_id directly in the
+        JWT token payload to avoid database lookups.
     """
     if not hasattr(request, 'user') or 'username' not in request.user:
         return None
@@ -171,7 +235,20 @@ def get_user_id_from_token():
 def get_user_from_request():
     """
     Extract user information from JWT token.
-    Returns user_id (from database lookup) and role (from token).
+    
+    Functionality:
+        Retrieves user_id (via database lookup) and role (from JWT token)
+        for the authenticated user making the request.
+    
+    Parameters:
+        None (uses request.user from token_required decorator)
+    
+    Returns:
+        tuple: (user_id, user_role) where:
+            - user_id (int or None): User ID from database lookup
+            - user_role (str): User role from JWT token, defaults to "regular user"
+        
+        Returns (None, None) if request.user is not set.
     """
     if not hasattr(request, 'user'):
         return None, None
@@ -189,9 +266,28 @@ def get_user_from_request():
 @log_request_response
 def api_get_all_bookings():
     """
-    Get all bookings.
-    Admin, Facility Manager, and Auditor can view all bookings.
-    Rate limited: 100 requests/hour
+    Get all bookings in the system.
+    
+    Functionality:
+        Retrieves all bookings with user and room details.
+        Only accessible to Admin, Facility Manager, and Auditor roles.
+        Rate limited to 100 requests per hour.
+    
+    Parameters:
+        None (uses JWT token from Authorization header)
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "bookings": [list of booking dictionaries],
+                "count": number of bookings
+            }
+        
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user role is not authorized.
+    
+    Authorization:
+        Required roles: Admin, Facility Manager, Auditor
     """
     bookings = get_all_bookings()
     return jsonify({"bookings": bookings, "count": len(bookings)}), 200
@@ -202,7 +298,25 @@ def api_get_all_bookings():
 def api_get_booking(booking_id):
     """
     Get a specific booking by ID.
-    Users can view their own bookings, admins/facility managers can view any.
+    
+    Functionality:
+        Retrieves a single booking by its ID. Regular users can only view
+        their own bookings, while Admin, Facility Manager, and Auditor
+        can view any booking.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to retrieve.
+    
+    Returns:
+        JSON response with status code 200 containing booking details.
+        
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user tries to view another user's booking (regular users only).
+        Returns 404 if booking is not found.
+    
+    Authorization:
+        - Regular users: Can only view their own bookings
+        - Admin, Facility Manager, Auditor: Can view any booking
     """
     user_id, user_role = get_user_from_request()
     
@@ -223,7 +337,29 @@ def api_get_booking(booking_id):
 def api_get_user_bookings(user_id):
     """
     Get bookings for a specific user.
-    Users can view their own booking history, admins can view any user's history.
+    
+    Functionality:
+        Retrieves all bookings for a given user. Regular users can only
+        view their own booking history, while Admin, Facility Manager, and
+        Auditor can view any user's booking history.
+    
+    Parameters:
+        user_id (int): The ID of the user whose bookings to retrieve.
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "bookings": [list of booking dictionaries],
+                "count": number of bookings,
+                "user_id": user_id
+            }
+        
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user tries to view another user's bookings (regular users only).
+    
+    Authorization:
+        - Regular users: Can only view their own bookings
+        - Admin, Facility Manager, Auditor: Can view any user's bookings
     """
     requesting_user_id, user_role = get_user_from_request()
     
@@ -240,7 +376,28 @@ def api_get_user_bookings(user_id):
 def api_get_room_bookings(room_id):
     """
     Get bookings for a specific room.
-    Optional query parameter: date (YYYY-MM-DD) to filter by specific date.
+    
+    Functionality:
+        Retrieves all bookings for a given room. Optionally filters by date
+        if provided as a query parameter. This is a public endpoint (no authentication required).
+    
+    Parameters:
+        room_id (int): The ID of the room whose bookings to retrieve.
+        
+        Query Parameters:
+            date (str, optional): Filter bookings by date in YYYY-MM-DD format.
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "bookings": [list of booking dictionaries],
+                "count": number of bookings,
+                "room_id": room_id,
+                "date": date filter (if provided)
+            }
+    
+    Authorization:
+        None (public endpoint)
     """
     booking_date = request.args.get('date')
     
@@ -252,7 +409,32 @@ def api_get_room_bookings(room_id):
 def api_check_availability():
     """
     Check room availability for a specific time slot.
-    Query parameters: room_id, date, start_time, end_time
+    
+    Functionality:
+        Checks if a room is available for a given date and time range.
+        This is a public endpoint (no authentication required).
+    
+    Parameters:
+        Query Parameters (all required):
+            room_id (int): The ID of the room to check.
+            date (str): Date in YYYY-MM-DD format.
+            start_time (str): Start time in HH:MM:SS format.
+            end_time (str): End time in HH:MM:SS format.
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "room_id": room_id,
+                "date": booking_date,
+                "start_time": start_time,
+                "end_time": end_time,
+                "available": boolean indicating availability
+            }
+        
+        Returns 400 if any required parameters are missing or invalid.
+    
+    Authorization:
+        None (public endpoint)
     """
     room_id = request.args.get('room_id')
     booking_date = request.args.get('date')
@@ -283,9 +465,35 @@ def api_check_availability():
 def api_create_booking():
     """
     Create a new booking.
-    Regular users, Facility Managers can create bookings.
-    Required fields: user_id, room_id, booking_date, start_time, end_time
-    Rate limited: 50 requests/hour
+    
+    Functionality:
+        Creates a new room booking. Regular users can only create bookings
+        for themselves, while Admin and Facility Manager can create bookings
+        for any user. Validates room availability before creating.
+        Rate limited to 50 requests per hour.
+    
+    Parameters:
+        Request Body (JSON, required):
+            user_id (int): ID of the user making the booking.
+            room_id (int): ID of the room to book.
+            booking_date (str): Date in YYYY-MM-DD format.
+            start_time (str): Start time in HH:MM:SS format.
+            end_time (str): End time in HH:MM:SS format.
+    
+    Returns:
+        JSON response with status code 201 containing created booking details.
+        
+        Returns 400 if:
+            - No booking data provided
+            - Room is not available
+            - User or room does not exist
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user tries to create booking for another user (regular users only).
+        Returns 500 for other errors.
+    
+    Authorization:
+        - Regular users: Can only create bookings for themselves
+        - Admin, Facility Manager: Can create bookings for any user
     """
     user_id, user_role = get_user_from_request()
     booking_data = request.get_json()
@@ -313,7 +521,35 @@ def api_create_booking():
 def api_update_booking(booking_id):
     """
     Update an existing booking.
-    Users can update their own bookings, admins can update any booking.
+    
+    Functionality:
+        Updates an existing booking. Regular users can only update their own
+        bookings, while Admin and Facility Manager can update any booking.
+        Validates room availability if time/date/room is changed.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to update.
+        
+        Request Body (JSON, required):
+            room_id (int, optional): New room ID.
+            booking_date (str, optional): New date in YYYY-MM-DD format.
+            start_time (str, optional): New start time in HH:MM:SS format.
+            end_time (str, optional): New end time in HH:MM:SS format.
+            status (str, optional): New booking status.
+    
+    Returns:
+        JSON response with status code 200 containing updated booking details.
+        
+        Returns 400 if:
+            - No booking data provided
+            - Room is not available
+            - Room does not exist
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user tries to update another user's booking (regular users only).
+    
+    Authorization:
+        - Regular users: Can only update their own bookings
+        - Admin, Facility Manager: Can update any booking
     """
     user_id, user_role = get_user_from_request()
     booking_data = request.get_json()
@@ -336,7 +572,30 @@ def api_update_booking(booking_id):
 def api_cancel_booking(booking_id):
     """
     Cancel a booking.
-    Users can cancel their own bookings, admins can cancel any booking.
+    
+    Functionality:
+        Cancels an existing booking by setting its status to 'Cancelled'.
+        Regular users can only cancel their own bookings, while Admin and
+        Facility Manager can cancel any booking.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to cancel.
+    
+    Returns:
+        JSON response with status code 200 containing cancellation confirmation:
+            {
+                "message": "Booking cancelled successfully",
+                "booking_id": booking_id,
+                "status": "success"
+            }
+        
+        Returns 400 if booking is already cancelled or other errors occur.
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user tries to cancel another user's booking (regular users only).
+    
+    Authorization:
+        - Regular users: Can only cancel their own bookings
+        - Admin, Facility Manager: Can cancel any booking
     """
     user_id, user_role = get_user_from_request()
     
@@ -356,8 +615,24 @@ def api_cancel_booking(booking_id):
 @log_request_response
 def api_force_cancel_booking(booking_id):
     """
-    Force cancel a booking (admin only).
-    Allows admins to cancel any booking regardless of ownership.
+    Force cancel a booking (Admin only).
+    
+    Functionality:
+        Allows admins to forcefully cancel any booking regardless of ownership.
+        This action is logged for audit purposes.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to force cancel.
+    
+    Returns:
+        JSON response with status code 200 containing cancellation confirmation.
+        
+        Returns 400 if booking cannot be cancelled or other errors occur.
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     user_id, user_role = get_user_from_request()
     
@@ -379,7 +654,33 @@ def api_force_cancel_booking(booking_id):
 def api_admin_update_booking(booking_id):
     """
     Admin update booking endpoint.
-    Allows admins to override and update any booking.
+    
+    Functionality:
+        Allows admins to override and update any booking, bypassing normal
+        authorization checks. This is used for administrative corrections.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to update.
+        
+        Request Body (JSON, required):
+            room_id (int, optional): New room ID.
+            booking_date (str, optional): New date in YYYY-MM-DD format.
+            start_time (str, optional): New start time in HH:MM:SS format.
+            end_time (str, optional): New end time in HH:MM:SS format.
+            status (str, optional): New booking status.
+    
+    Returns:
+        JSON response with status code 200 containing updated booking details.
+        
+        Returns 400 if:
+            - No booking data provided
+            - Room is not available
+            - Other validation errors
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     user_id, user_role = get_user_from_request()
     
@@ -401,7 +702,35 @@ def api_admin_update_booking(booking_id):
 def api_get_conflicts():
     """
     Get conflicting bookings for a time slot (Admin only).
-    Query parameters: room_id, date, start_time, end_time
+    
+    Functionality:
+        Retrieves all bookings that conflict with a given time slot for a room.
+        Used by admins to identify and resolve booking conflicts.
+    
+    Parameters:
+        Query Parameters (all required):
+            room_id (int): The ID of the room to check.
+            date (str): Date in YYYY-MM-DD format.
+            start_time (str): Start time in HH:MM:SS format.
+            end_time (str): End time in HH:MM:SS format.
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "conflicts": [list of conflicting booking dictionaries],
+                "count": number of conflicts,
+                "room_id": room_id,
+                "date": booking_date,
+                "start_time": start_time,
+                "end_time": end_time
+            }
+        
+        Returns 400 if any required parameters are missing or invalid.
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     room_id = request.args.get('room_id')
     booking_date = request.args.get('date')
@@ -432,7 +761,32 @@ def api_get_conflicts():
 def api_resolve_conflict(booking_id):
     """
     Resolve a booking conflict (Admin only).
-    Body: {"action": "cancel" | "modify" | "override"}
+    
+    Functionality:
+        Allows admins to resolve booking conflicts by taking actions such as
+        cancelling, modifying, or overriding conflicting bookings.
+    
+    Parameters:
+        booking_id (int): The ID of the booking to resolve.
+        
+        Request Body (JSON, required):
+            action (str): Action to take. Options:
+                - "cancel": Cancel the booking
+                - "modify": Modify the booking (requires additional data)
+                - "override": Override and keep the booking
+    
+    Returns:
+        JSON response with status code 200 containing resolution confirmation.
+        
+        Returns 400 if:
+            - No data provided
+            - Invalid action specified
+            - Booking not found
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     user_id, user_role = get_user_from_request()
     
@@ -455,6 +809,27 @@ def api_resolve_conflict(booking_id):
 def api_get_stuck_bookings():
     """
     Get stuck bookings that need resolution (Admin only).
+    
+    Functionality:
+        Retrieves bookings that are in stuck states (e.g., confirmed bookings
+        with past dates that haven't been completed or cancelled).
+        Used by admins to identify and fix booking inconsistencies.
+    
+    Parameters:
+        None
+    
+    Returns:
+        JSON response with status code 200 containing:
+            {
+                "stuck_bookings": [list of stuck booking dictionaries],
+                "count": number of stuck bookings
+            }
+        
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     stuck = get_stuck_bookings()
     return jsonify({"stuck_bookings": stuck, "count": len(stuck)}), 200
@@ -466,7 +841,35 @@ def api_get_stuck_bookings():
 def api_unblock_booking(booking_id):
     """
     Unblock a stuck booking (Admin only).
-    Body: {"action": "complete" | "cancel"}
+    
+    Functionality:
+        Allows admins to unblock stuck bookings by marking them as completed
+        or cancelling them. This resolves booking state inconsistencies.
+    
+    Parameters:
+        booking_id (int): The ID of the stuck booking to unblock.
+        
+        Request Body (JSON, optional):
+            action (str): Action to take. Options:
+                - "complete": Mark booking as completed (default)
+                - "cancel": Cancel the booking
+    
+    Returns:
+        JSON response with status code 200 containing unblock confirmation:
+            {
+                "message": "Booking marked as completed" or "Stuck booking cancelled",
+                "booking_id": booking_id,
+                "status": "success"
+            }
+        
+        Returns 400 if:
+            - Booking not found
+            - Invalid action specified
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+    
+    Authorization:
+        Required role: Admin
     """
     data = request.get_json() or {}
     action = data.get('action', 'complete')
@@ -483,7 +886,26 @@ def api_unblock_booking(booking_id):
 def api_get_circuit_breaker_status():
     """
     Get circuit breaker status for all services or a specific service.
-    Query parameter: service (optional) - 'users', 'rooms', 'bookings', 'reviews'
+    
+    Functionality:
+        Retrieves the current status of circuit breakers for microservices.
+        Can return status for all services or filter by a specific service name.
+        This is a public endpoint (no authentication required).
+    
+    Parameters:
+        Query Parameters:
+            service (str, optional): Service name to filter by.
+                Options: 'users', 'rooms', 'bookings', 'reviews'
+                If not provided, returns status for all services.
+    
+    Returns:
+        JSON response with status code 200 containing circuit breaker status.
+        
+        Returns 503 if circuit breaker functionality is not available.
+        Returns 500 for other errors.
+    
+    Authorization:
+        None (public endpoint)
     """
     try:
         from shared_utils.circuit_breaker import get_circuit_breaker_status
@@ -502,6 +924,27 @@ def api_get_circuit_breaker_status():
 def api_reset_circuit_breaker(service_name):
     """
     Manually reset a circuit breaker (Admin only).
+    
+    Functionality:
+        Allows admins to manually reset a circuit breaker for a specific service.
+        This is useful when a service has recovered and the circuit breaker needs
+        to be reset to allow requests through again.
+    
+    Parameters:
+        service_name (str): Name of the service whose circuit breaker to reset.
+            Options: 'users', 'rooms', 'bookings', 'reviews'
+    
+    Returns:
+        JSON response with status code 200 containing reset confirmation.
+        
+        Returns 400 if reset fails or service name is invalid.
+        Returns 401 if token is missing or invalid.
+        Returns 403 if user is not an Admin.
+        Returns 503 if circuit breaker functionality is not available.
+        Returns 500 for other errors.
+    
+    Authorization:
+        Required role: Admin
     """
     try:
         from shared_utils.circuit_breaker import reset_circuit_breaker

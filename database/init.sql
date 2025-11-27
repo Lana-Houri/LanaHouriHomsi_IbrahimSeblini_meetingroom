@@ -45,9 +45,22 @@ CREATE TABLE Reviews(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Basic indexes
 CREATE INDEX idx_bookings_user ON Bookings(user_id);
 CREATE INDEX idx_bookings_room ON Bookings(room_id);
 CREATE INDEX idx_bookings_date ON Bookings(booking_date);
 CREATE INDEX idx_reviews_room ON Reviews(room_id);
 CREATE INDEX idx_reviews_user ON Reviews(user_id);
 CREATE INDEX idx_reviews_flagged ON Reviews(is_flagged) WHERE is_flagged = TRUE;
+
+-- Performance optimization indexes (for frequently queried fields)
+CREATE INDEX idx_rooms_name ON Rooms(room_name);
+CREATE INDEX idx_bookings_date_room ON Bookings(booking_date, room_id);
+CREATE INDEX idx_bookings_datetime ON Bookings(booking_date, start_time, end_time);
+CREATE INDEX idx_bookings_status ON Bookings(status);
+CREATE INDEX idx_users_username ON Users(username);
+CREATE INDEX idx_users_email ON Users(email);
+CREATE INDEX idx_rooms_status ON Rooms(room_status);
+CREATE INDEX idx_rooms_status_location ON Rooms(room_status, room_location);
+CREATE INDEX idx_bookings_created_at ON Bookings(created_at);
+CREATE INDEX idx_bookings_updated_at ON Bookings(updated_at);

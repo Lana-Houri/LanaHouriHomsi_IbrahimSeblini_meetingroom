@@ -2,6 +2,14 @@
 Booking Routes
 API endpoints for managing meeting room bookings.
 """
+import sys
+import os
+
+# Add parent directory to path for shared_utils
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 from flask import Blueprint, request, jsonify
 from booking_model import (
     get_all_bookings,
@@ -11,11 +19,41 @@ from booking_model import (
     check_room_availability,
     create_booking,
     update_booking,
-    cancel_booking
+    cancel_booking,
+    get_conflicting_bookings,
+    resolve_booking_conflict,
+    get_stuck_bookings,
+    unblock_stuck_booking
 )
 
+# Try to import enhanced features
+try:
+    from shared_utils.audit_logger import log_request_response, log_admin_action
+    FEATURES_ENABLED = True
+except ImportError:
+    # Fallback decorator that does nothing
+    def log_request_response(func):
+        return func
+    def log_admin_action(*args, **kwargs):
+        pass
+    FEATURES_ENABLED = False
 
 booking_bp = Blueprint('booking_bp', __name__)
+
+# Initialize limiter (will be set by app)
+limiter = None
+
+def init_limiter(app_limiter):
+    """Initialize rate limiter for this blueprint."""
+    global limiter
+    limiter = app_limiter
+
+
+def apply_rate_limit_if_available(limit_str: str):
+    """Helper to apply rate limit if limiter is available."""
+    if limiter:
+        return limiter.limit(limit_str)
+    return lambda f: f  # No-op decorator if limiter not available
 
 
 def get_user_from_request():
@@ -36,7 +74,14 @@ def get_user_from_request():
 
 
 @booking_bp.route('/api/bookings', methods=['GET'])
+@apply_rate_limit_if_available("100/hour")
+@log_request_response
 def api_get_all_bookings():
+    """
+    Get all bookings.
+    Admin, Facility Manager, and Auditor can view all bookings.
+    Rate limited: 100 requests/hour
+    """
     """
     Get all bookings.
     Admin, Facility Manager, and Auditor can view all bookings.
@@ -129,11 +174,14 @@ def api_check_availability():
 
 
 @booking_bp.route('/api/bookings', methods=['POST'])
+@apply_rate_limit_if_available("50/hour")
+@log_request_response
 def api_create_booking():
     """
     Create a new booking.
     Regular users, Facility Managers can create bookings.
     Required fields: user_id, room_id, booking_date, start_time, end_time
+    Rate limited: 50 requests/hour
     """
     user_id, user_role = get_user_from_request()
     booking_data = request.get_json()
@@ -197,6 +245,7 @@ def api_cancel_booking(booking_id):
 
 
 @booking_bp.route('/api/admin/bookings/<int:booking_id>/force-cancel', methods=['PUT'])
+@log_request_response
 def api_force_cancel_booking(booking_id):
     """
     Force cancel a booking (admin only).
@@ -211,6 +260,10 @@ def api_force_cancel_booking(booking_id):
     
     if result.get('error'):
         return jsonify(result), 400
+    
+    # Log admin action
+    if FEATURES_ENABLED:
+        log_admin_action("Force cancelled booking", {"booking_id": booking_id})
     
     return jsonify(result), 200
 
@@ -236,4 +289,137 @@ def api_admin_update_booking(booking_id):
         return jsonify(result), 400
     
     return jsonify(result), 200
+
+
+@booking_bp.route('/api/admin/bookings/conflicts', methods=['GET'])
+def api_get_conflicts():
+    """
+    Get conflicting bookings for a time slot (Admin only).
+    Query parameters: room_id, date, start_time, end_time
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can view conflicts"}), 403
+    
+    room_id = request.args.get('room_id')
+    booking_date = request.args.get('date')
+    start_time = request.args.get('start_time')
+    end_time = request.args.get('end_time')
+    
+    if not all([room_id, booking_date, start_time, end_time]):
+        return jsonify({"error": "Missing required parameters: room_id, date, start_time, end_time"}), 400
+    
+    try:
+        room_id = int(room_id)
+        conflicts = get_conflicting_bookings(room_id, booking_date, start_time, end_time)
+        return jsonify({
+            "conflicts": conflicts,
+            "count": len(conflicts),
+            "room_id": room_id,
+            "date": booking_date,
+            "start_time": start_time,
+            "end_time": end_time
+        }), 200
+    except ValueError:
+        return jsonify({"error": "Invalid room_id"}), 400
+
+
+@booking_bp.route('/api/admin/bookings/<int:booking_id>/resolve', methods=['PUT'])
+def api_resolve_conflict(booking_id):
+    """
+    Resolve a booking conflict (Admin only).
+    Body: {"action": "cancel" | "modify" | "override"}
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can resolve conflicts"}), 403
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    action = data.get('action', 'cancel')
+    result = resolve_booking_conflict(booking_id, action, user_id)
+    
+    if result.get('error'):
+        return jsonify(result), 400
+    
+    return jsonify(result), 200
+
+
+@booking_bp.route('/api/admin/bookings/stuck', methods=['GET'])
+def api_get_stuck_bookings():
+    """
+    Get stuck bookings that need resolution (Admin only).
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can view stuck bookings"}), 403
+    
+    stuck = get_stuck_bookings()
+    return jsonify({"stuck_bookings": stuck, "count": len(stuck)}), 200
+
+
+@booking_bp.route('/api/admin/bookings/<int:booking_id>/unblock', methods=['PUT'])
+def api_unblock_booking(booking_id):
+    """
+    Unblock a stuck booking (Admin only).
+    Body: {"action": "complete" | "cancel"}
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can unblock bookings"}), 403
+    
+    data = request.get_json() or {}
+    action = data.get('action', 'complete')
+    
+    result = unblock_stuck_booking(booking_id, action)
+    
+    if result.get('error'):
+        return jsonify(result), 400
+    
+    return jsonify(result), 200
+
+
+@booking_bp.route('/api/circuit-breaker/status', methods=['GET'])
+def api_get_circuit_breaker_status():
+    """
+    Get circuit breaker status for all services or a specific service.
+    Query parameter: service (optional) - 'users', 'rooms', 'bookings', 'reviews'
+    """
+    try:
+        from shared_utils.circuit_breaker import get_circuit_breaker_status
+        service_name = request.args.get('service')
+        status = get_circuit_breaker_status(service_name)
+        return jsonify(status), 200
+    except ImportError:
+        return jsonify({"error": "Circuit breaker not available"}), 503
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@booking_bp.route('/api/circuit-breaker/reset/<service_name>', methods=['POST'])
+def api_reset_circuit_breaker(service_name):
+    """
+    Manually reset a circuit breaker (Admin only).
+    """
+    user_id, user_role = get_user_from_request()
+    
+    if user_role != 'Admin':
+        return jsonify({"error": "Unauthorized: Only admins can reset circuit breakers"}), 403
+    
+    try:
+        from shared_utils.circuit_breaker import reset_circuit_breaker
+        result = reset_circuit_breaker(service_name)
+        if result.get('error'):
+            return jsonify(result), 400
+        return jsonify(result), 200
+    except ImportError:
+        return jsonify({"error": "Circuit breaker not available"}), 503
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 

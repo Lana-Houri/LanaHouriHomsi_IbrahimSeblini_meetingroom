@@ -26,6 +26,11 @@ from booking_model import (
     unblock_stuck_booking
 )
 
+import jwt
+from functools import wraps
+
+SECRET_KEY = "4a0f2b0f392b236fe7ff4081c27260fc5520c88962bc45403ce18c179754ef5b"
+
 # Try to import enhanced features
 try:
     from shared_utils.audit_logger import log_request_response, log_admin_action
@@ -56,24 +61,130 @@ def apply_rate_limit_if_available(limit_str: str):
     return lambda f: f  # No-op decorator if limiter not available
 
 
+def token_required(f):
+    """
+    Decorator that validates JWT tokens from the Authorization header.
+    Extracts user information from the token and stores it in request.user.
+    
+    Token format: Authorization: Bearer <token>
+    
+    Returns:
+        401 Unauthorized if token is missing, invalid, or expired
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        
+        # Extract token from Authorization header
+        if "Authorization" in request.headers:
+            try:
+                auth_header = request.headers["Authorization"]
+                # Expected format: "Bearer <token>"
+                parts = auth_header.split(" ")
+                if len(parts) == 2 and parts[0] == "Bearer":
+                    token = parts[1]
+                else:
+                    return jsonify({"error": "Token format must be: Bearer <token>"}), 401
+            except Exception as e:
+                return jsonify({"error": "Token format must be: Bearer <token>"}), 401
+
+        if not token:
+            return jsonify({"error": "Token missing. Please provide a valid token in Authorization header"}), 401
+
+        # Validate and decode the token
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            # Store user information in request for use in route handlers
+            request.user = data
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token has expired. Please login again"}), 401
+        except jwt.InvalidTokenError as e:
+            return jsonify({"error": "Invalid or expired token", "details": str(e)}), 401
+        except Exception as e:
+            return jsonify({"error": "Invalid or expired token", "details": str(e)}), 401
+
+        return f(*args, **kwargs)
+    return decorated
+
+
+def role_required(*roles):
+    """
+    Decorator that ensures the user has one of the required roles.
+    Must be used after @token_required decorator.
+    
+    Args:
+        *roles: Variable number of allowed role names (e.g., "Admin", "Facility Manager")
+    
+    Returns:
+        403 Forbidden if user's role is not in the allowed roles list
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Ensure request.user exists (should be set by token_required)
+            if not hasattr(request, 'user') or 'role' not in request.user:
+                return jsonify({"error": "User information not found in token"}), 401
+            
+            # Check if user's role is in the allowed roles
+            if request.user["role"] not in roles:
+                return jsonify({
+                    "error": "Forbidden: Your role cannot access this resource",
+                    "required_roles": list(roles),
+                    "your_role": request.user["role"]
+                }), 403
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def get_user_id_from_token():
+    """
+    Get user_id from JWT token.
+    Note: JWT token contains username, so we need to look up user_id from database.
+    For better performance, consider including user_id in the JWT token payload.
+    """
+    if not hasattr(request, 'user') or 'username' not in request.user:
+        return None
+    
+    try:
+        # Try to get user_id from database using username
+        conn = None
+        try:
+            from booking_model import connect_to_db
+            conn = connect_to_db()
+            cur = conn.cursor()
+            cur.execute("SELECT user_id FROM Users WHERE username = %s", (request.user["username"],))
+            row = cur.fetchone()
+            if row:
+                return row[0]
+        except Exception:
+            pass
+        finally:
+            if conn:
+                conn.close()
+    except Exception:
+        pass
+    
+    return None
+
+
 def get_user_from_request():
     """
-    Extract user information from request headers.
-    In a real implementation, this would verify JWT tokens or session.
-    For now, we'll get user_id and role from headers.
+    Extract user information from JWT token.
+    Returns user_id (from database lookup) and role (from token).
     """
-    user_id = request.headers.get('X-User-ID')
-    user_role = request.headers.get('X-User-Role', 'regular user')
+    if not hasattr(request, 'user'):
+        return None, None
     
-    if user_id:
-        try:
-            return int(user_id), user_role
-        except ValueError:
-            return None, None
-    return None, None
+    user_id = get_user_id_from_token()
+    user_role = request.user.get("role", "regular user")
+    
+    return user_id, user_role
 
 
 @booking_bp.route('/api/bookings', methods=['GET'])
+@token_required
+@role_required("Admin", "Facility Manager", "Auditor")
 @apply_rate_limit_if_available("100/hour")
 @log_request_response
 def api_get_all_bookings():
@@ -82,21 +193,12 @@ def api_get_all_bookings():
     Admin, Facility Manager, and Auditor can view all bookings.
     Rate limited: 100 requests/hour
     """
-    """
-    Get all bookings.
-    Admin, Facility Manager, and Auditor can view all bookings.
-    """
-    user_id, user_role = get_user_from_request()
-    
-    # Check authorization
-    if user_role not in ['Admin', 'Facility Manager', 'Auditor']:
-        return jsonify({"error": "Unauthorized: Only admins, facility managers, and auditors can view all bookings"}), 403
-    
     bookings = get_all_bookings()
     return jsonify({"bookings": bookings, "count": len(bookings)}), 200
 
 
 @booking_bp.route('/api/bookings/<int:booking_id>', methods=['GET'])
+@token_required
 def api_get_booking(booking_id):
     """
     Get a specific booking by ID.
@@ -117,6 +219,7 @@ def api_get_booking(booking_id):
 
 
 @booking_bp.route('/api/bookings/user/<int:user_id>', methods=['GET'])
+@token_required
 def api_get_user_bookings(user_id):
     """
     Get bookings for a specific user.
@@ -174,6 +277,7 @@ def api_check_availability():
 
 
 @booking_bp.route('/api/bookings', methods=['POST'])
+@token_required
 @apply_rate_limit_if_available("50/hour")
 @log_request_response
 def api_create_booking():
@@ -205,6 +309,7 @@ def api_create_booking():
 
 
 @booking_bp.route('/api/bookings/<int:booking_id>', methods=['PUT'])
+@token_required
 def api_update_booking(booking_id):
     """
     Update an existing booking.
@@ -227,6 +332,7 @@ def api_update_booking(booking_id):
 
 
 @booking_bp.route('/api/bookings/<int:booking_id>/cancel', methods=['PUT'])
+@token_required
 def api_cancel_booking(booking_id):
     """
     Cancel a booking.
@@ -245,6 +351,8 @@ def api_cancel_booking(booking_id):
 
 
 @booking_bp.route('/api/admin/bookings/<int:booking_id>/force-cancel', methods=['PUT'])
+@token_required
+@role_required("Admin")
 @log_request_response
 def api_force_cancel_booking(booking_id):
     """
@@ -252,9 +360,6 @@ def api_force_cancel_booking(booking_id):
     Allows admins to cancel any booking regardless of ownership.
     """
     user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can force cancel bookings"}), 403
     
     result = cancel_booking(booking_id, user_id, is_admin=True)
     
@@ -269,15 +374,14 @@ def api_force_cancel_booking(booking_id):
 
 
 @booking_bp.route('/api/admin/bookings/<int:booking_id>', methods=['PUT'])
+@token_required
+@role_required("Admin")
 def api_admin_update_booking(booking_id):
     """
     Admin update booking endpoint.
     Allows admins to override and update any booking.
     """
     user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can override bookings"}), 403
     
     booking_data = request.get_json()
     if not booking_data:
@@ -292,16 +396,13 @@ def api_admin_update_booking(booking_id):
 
 
 @booking_bp.route('/api/admin/bookings/conflicts', methods=['GET'])
+@token_required
+@role_required("Admin")
 def api_get_conflicts():
     """
     Get conflicting bookings for a time slot (Admin only).
     Query parameters: room_id, date, start_time, end_time
     """
-    user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can view conflicts"}), 403
-    
     room_id = request.args.get('room_id')
     booking_date = request.args.get('date')
     start_time = request.args.get('start_time')
@@ -326,15 +427,14 @@ def api_get_conflicts():
 
 
 @booking_bp.route('/api/admin/bookings/<int:booking_id>/resolve', methods=['PUT'])
+@token_required
+@role_required("Admin")
 def api_resolve_conflict(booking_id):
     """
     Resolve a booking conflict (Admin only).
     Body: {"action": "cancel" | "modify" | "override"}
     """
     user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can resolve conflicts"}), 403
     
     data = request.get_json()
     if not data:
@@ -350,30 +450,24 @@ def api_resolve_conflict(booking_id):
 
 
 @booking_bp.route('/api/admin/bookings/stuck', methods=['GET'])
+@token_required
+@role_required("Admin")
 def api_get_stuck_bookings():
     """
     Get stuck bookings that need resolution (Admin only).
     """
-    user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can view stuck bookings"}), 403
-    
     stuck = get_stuck_bookings()
     return jsonify({"stuck_bookings": stuck, "count": len(stuck)}), 200
 
 
 @booking_bp.route('/api/admin/bookings/<int:booking_id>/unblock', methods=['PUT'])
+@token_required
+@role_required("Admin")
 def api_unblock_booking(booking_id):
     """
     Unblock a stuck booking (Admin only).
     Body: {"action": "complete" | "cancel"}
     """
-    user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can unblock bookings"}), 403
-    
     data = request.get_json() or {}
     action = data.get('action', 'complete')
     
@@ -403,15 +497,12 @@ def api_get_circuit_breaker_status():
 
 
 @booking_bp.route('/api/circuit-breaker/reset/<service_name>', methods=['POST'])
+@token_required
+@role_required("Admin")
 def api_reset_circuit_breaker(service_name):
     """
     Manually reset a circuit breaker (Admin only).
     """
-    user_id, user_role = get_user_from_request()
-    
-    if user_role != 'Admin':
-        return jsonify({"error": "Unauthorized: Only admins can reset circuit breakers"}), 403
-    
     try:
         from shared_utils.circuit_breaker import reset_circuit_breaker
         result = reset_circuit_breaker(service_name)

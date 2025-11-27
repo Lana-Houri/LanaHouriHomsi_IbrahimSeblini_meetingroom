@@ -55,87 +55,99 @@ def test_available_rooms(mock_func, client):
     assert len(res.json) == 1
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.insert_room", return_value={"room_name": "NewRoom"})
-@patch("rooms_routes.get_user_role", return_value="Admin")
-def test_add_room(mock_role, mock_insert, client):
+def test_add_room(mock_insert, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "admin", "role": "Admin"}
     payload = {"room_name": "NewRoom", "Capacity": 10}
-    res = client.post("/rooms/add", json=payload)
+    res = client.post("/rooms/add", json=payload, headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 201
     assert res.json["room_name"] == "NewRoom"
 
 
-@patch("rooms_routes.get_user_role", return_value="regular user")
-def test_add_room_unauthorized(mock_role, client):
-    res = client.post("/rooms/add", json={})
+@patch("rooms_routes.jwt.decode")
+def test_add_room_unauthorized(mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "user", "role": "regular user"}
+    res = client.post("/rooms/add", json={}, headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 403
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.update_room", return_value={"room_name": "UpdatedRoom"})
-@patch("rooms_routes.get_user_role", return_value="Admin")
-def test_update_room(mock_role, mock_update, client):
+def test_update_room(mock_update, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "admin", "role": "Admin"}
     payload = {"room_name": "UpdatedRoom", "Capacity": 10, "room_location": "F1", "room_status": "Available"}
-    res = client.put("/api/rooms/update", json=payload)
+    res = client.put("/api/rooms/update", json=payload, headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
-@patch("rooms_routes.get_user_role", return_value="regular user")
-def test_update_room_unauthorized(mock_role, client):
-    res = client.put("/api/rooms/update", json={})
+@patch("rooms_routes.jwt.decode")
+def test_update_room_unauthorized(mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "user", "role": "regular user"}
+    res = client.put("/api/rooms/update", json={}, headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 403
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.delete_room", return_value={"message": "Room deleted"})
-@patch("rooms_routes.get_user_role", return_value="Admin")
-def test_delete_room(mock_role, mock_delete, client):
-    res = client.delete("/api/rooms/delete/RX")
+def test_delete_room(mock_delete, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "admin", "role": "Admin"}
+    res = client.delete("/api/rooms/delete/RX", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.delete_room", return_value=None)
-@patch("rooms_routes.get_user_role", return_value="Admin")
-def test_delete_room_not_found(mock_role, mock_delete, client):
-    res = client.delete("/api/rooms/delete/Unknown")
+def test_delete_room_not_found(mock_delete, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "admin", "role": "Admin"}
+    res = client.delete("/api/rooms/delete/Unknown", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 404
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.update_room", return_value={"room_name": "RT", "room_status": "Booked"})
 @patch("rooms_routes.get_room_by_name", return_value={"room_name": "RT", "room_status": "Available", "Capacity": 10, "room_location": "L1"})
-@patch("rooms_routes.get_user_role", return_value="Admin")
-def test_toggle_status(mock_role, mock_get, mock_update, client):
-    res = client.put("/api/rooms/toggle_status/RT", json={})
+def test_toggle_status(mock_get, mock_update, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "admin", "role": "Admin"}
+    res = client.put("/api/rooms/toggle_status/RT", json={}, headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.update_room", return_value={"room_name": "R5", "room_status": "Out-of-Service"})
 @patch("rooms_routes.get_room_by_name", return_value={"room_name": "R5", "Capacity": 10, "room_location": "L1"})
-@patch("rooms_routes.get_user_role", return_value="Facility Manager")
-def test_mark_out_of_service(mock_role, mock_get, mock_update, client):
-    res = client.put("/facility_manager/rooms/out_of_service/R5")
+def test_mark_out_of_service(mock_get, mock_update, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "manager", "role": "Facility Manager"}
+    res = client.put("/facility_manager/rooms/out_of_service/R5", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.get_rooms", return_value=[{"room_name": "Aud1"}])
-@patch("rooms_routes.get_user_role", return_value="Auditor")
-def test_auditor_get_rooms(mock_role, mock_get, client):
-    res = client.get("/auditor/rooms")
+def test_auditor_get_rooms(mock_get, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "auditor", "role": "Auditor"}
+    res = client.get("/auditor/rooms", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
-@patch("rooms_routes.get_user_role", return_value="regular user")
-def test_auditor_get_rooms_unauthorized(mock_role, client):
-    res = client.get("/auditor/rooms")
+@patch("rooms_routes.jwt.decode")
+def test_auditor_get_rooms_unauthorized(mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "user", "role": "regular user"}
+    res = client.get("/auditor/rooms", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 403
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.get_room_by_name", return_value={"room_name": "AudR"})
-@patch("rooms_routes.get_user_role", return_value="Auditor")
-def test_auditor_get_room(mock_role, mock_get, client):
-    res = client.get("/auditor/rooms/AudR")
+def test_auditor_get_room(mock_get, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "auditor", "role": "Auditor"}
+    res = client.get("/auditor/rooms/AudR", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 200
 
 
+@patch("rooms_routes.jwt.decode")
 @patch("rooms_routes.get_room_by_name", return_value=None)
-@patch("rooms_routes.get_user_role", return_value="Auditor")
-def test_auditor_get_room_not_found(mock_role, mock_get, client):
-    res = client.get("/auditor/rooms/Unknown")
+def test_auditor_get_room_not_found(mock_get, mock_jwt_decode, client):
+    mock_jwt_decode.return_value = {"username": "auditor", "role": "Auditor"}
+    res = client.get("/auditor/rooms/Unknown", headers={"Authorization": "Bearer fake_token"})
     assert res.status_code == 404

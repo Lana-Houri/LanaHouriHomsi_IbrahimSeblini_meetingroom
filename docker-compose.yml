@@ -76,36 +76,27 @@ services:
     networks:
       - meetingroom-network
 
+  reviews-service:
+    build: ./reviews
+    container_name: reviews_service
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
 networks:
   meetingroom-network:
     driver: bridge
 
 volumes:
   pgdata:
-
-#   # Service 4: Reviews Service
-#   reviews-service:
-#     build: ./reviews
-#     container_name: reviews_service
-#     restart: always
-#     ports:
-#       - "5003:5003"
-#     environment:
-#       - FLASK_ENV=development
-#       - DB_HOST=db
-#       - DB_NAME=meetingroom
-#       - DB_USER=admin
-#       - DB_PASSWORD=password
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#     networks:
-#       - meetingroom-network
-
-# networks:
-#   meetingroom-network:
-#     driver: bridge
-
-# volumes:
-#   pgdata:
-

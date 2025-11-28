@@ -59,7 +59,9 @@ services:
       - meetingroom-network
 
   bookings-service:
-    build: ./bookings
+    build:
+      context: .
+      dockerfile: ./bookings/Dockerfile
     container_name: bookings_service
     restart: always
     ports:

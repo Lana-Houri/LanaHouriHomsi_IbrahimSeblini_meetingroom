@@ -13,6 +13,8 @@ if parent_dir not in sys.path:
 from flask import Flask, jsonify
 from flask_cors import CORS
 from booking_routes import booking_bp
+from datetime import time, date, datetime
+import json
 
 try:
     from shared_utils.rate_limiter import init_rate_limiter
@@ -23,6 +25,21 @@ except ImportError:
     FEATURES_ENABLED = False
 
 app = Flask(__name__)
+
+# Custom JSON provider to handle time/date objects
+from flask.json.provider import DefaultJSONProvider
+
+class CustomJSONProvider(DefaultJSONProvider):
+    def default(self, obj):
+        if isinstance(obj, time):
+            return obj.strftime('%H:%M:%S')
+        if isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+app.json = CustomJSONProvider(app)
 
 # Enable CORS for all routes
 CORS(app, resources={r"/*": {"origins": "*"}})

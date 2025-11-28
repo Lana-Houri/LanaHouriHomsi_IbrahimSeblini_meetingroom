@@ -9,7 +9,7 @@ CREATE TABLE Users(
 
 CREATE TABLE Rooms(
     room_id SERIAL PRIMARY KEY,
-    room_name VARCHAR(100) NOT NULL,
+    room_name VARCHAR(100) UNIQUE NOT NULL,
     Capacity INT NOT NULL,
     room_location VARCHAR(100) NOT NULL,
     equipment TEXT,

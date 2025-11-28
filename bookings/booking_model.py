@@ -13,6 +13,7 @@ if parent_dir not in sys.path:
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, List, Optional
+from datetime import time, date, datetime
 
 # Try to use secure config, fallback to defaults
 try:
@@ -20,6 +21,97 @@ try:
     USE_SECURE_CONFIG = True
 except ImportError:
     USE_SECURE_CONFIG = False
+
+
+def serialize_booking_datetimes(booking: Dict) -> Dict:
+    """
+    Convert time and date objects in booking dict to strings for JSON serialization.
+    
+    Args:
+        booking: Dictionary containing booking data
+        
+    Returns:
+        Dictionary with time/date objects converted to strings
+    """
+    if not booking:
+        return booking
+    
+    # Handle start_time - convert any time-like object to string
+    if 'start_time' in booking and booking['start_time'] is not None:
+        val = booking['start_time']
+        if isinstance(val, str):
+            pass  # Already a string
+        elif isinstance(val, time):
+            booking['start_time'] = val.strftime('%H:%M:%S')
+        elif isinstance(val, datetime):
+            booking['start_time'] = val.strftime('%H:%M:%S')
+        else:
+            # Convert everything else to string (catches PostgreSQL time objects and any other types)
+            try:
+                if hasattr(val, 'strftime'):
+                    booking['start_time'] = val.strftime('%H:%M:%S')
+                else:
+                    booking['start_time'] = str(val)
+            except:
+                booking['start_time'] = str(val)
+    
+    # Handle end_time
+    if 'end_time' in booking and booking['end_time'] is not None:
+        val = booking['end_time']
+        if isinstance(val, str):
+            pass  # Already a string
+        elif isinstance(val, time):
+            booking['end_time'] = val.strftime('%H:%M:%S')
+        elif isinstance(val, datetime):
+            booking['end_time'] = val.strftime('%H:%M:%S')
+        else:
+            # Convert everything else to string (catches PostgreSQL time objects and any other types)
+            try:
+                if hasattr(val, 'strftime'):
+                    booking['end_time'] = val.strftime('%H:%M:%S')
+                else:
+                    booking['end_time'] = str(val)
+            except:
+                booking['end_time'] = str(val)
+    
+    # Handle booking_date
+    if 'booking_date' in booking and booking['booking_date'] is not None:
+        val = booking['booking_date']
+        if isinstance(val, str):
+            pass  # Already a string
+        elif isinstance(val, date):
+            booking['booking_date'] = val.strftime('%Y-%m-%d')
+        elif isinstance(val, datetime):
+            booking['booking_date'] = val.strftime('%Y-%m-%d')
+        elif hasattr(val, 'strftime') and hasattr(val, 'year'):
+            booking['booking_date'] = val.strftime('%Y-%m-%d')
+        else:
+            booking['booking_date'] = str(val)
+    
+    # Handle created_at and updated_at (datetime objects)
+    if 'created_at' in booking and booking['created_at'] is not None:
+        val = booking['created_at']
+        if isinstance(val, str):
+            pass  # Already a string
+        elif isinstance(val, datetime):
+            booking['created_at'] = val.isoformat()
+        elif hasattr(val, 'isoformat'):
+            booking['created_at'] = val.isoformat()
+        else:
+            booking['created_at'] = str(val)
+    
+    if 'updated_at' in booking and booking['updated_at'] is not None:
+        val = booking['updated_at']
+        if isinstance(val, str):
+            pass  # Already a string
+        elif isinstance(val, datetime):
+            booking['updated_at'] = val.isoformat()
+        elif hasattr(val, 'isoformat'):
+            booking['updated_at'] = val.isoformat()
+        else:
+            booking['updated_at'] = str(val)
+    
+    return booking
 
 
 def connect_to_db():
@@ -58,12 +150,12 @@ def get_all_bookings() -> List[Dict]:
                 b.booking_id,
                 b.user_id,
                 b.room_id,
-                b.booking_date,
-                b.start_time,
-                b.end_time,
+                TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                 b.status,
-                b.created_at,
-                b.updated_at,
+                TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                 u.username,
                 u.user_name,
                 r.room_name,
@@ -75,7 +167,10 @@ def get_all_bookings() -> List[Dict]:
             ORDER BY b.booking_date DESC, b.start_time DESC
         """)
         rows = cur.fetchall()
-        bookings = [dict(row) for row in rows]
+        bookings = []
+        for row in rows:
+            booking = serialize_booking_datetimes(dict(row))
+            bookings.append(booking)
     except Exception as e:
         print(f"Error fetching bookings: {e}")
         bookings = []
@@ -104,12 +199,12 @@ def get_booking_by_id(booking_id: int) -> Dict:
                 b.booking_id,
                 b.user_id,
                 b.room_id,
-                b.booking_date,
-                b.start_time,
-                b.end_time,
+                TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                 b.status,
-                b.created_at,
-                b.updated_at,
+                TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                 u.username,
                 u.user_name,
                 r.room_name,
@@ -122,7 +217,7 @@ def get_booking_by_id(booking_id: int) -> Dict:
         """, (booking_id,))
         row = cur.fetchone()
         if row:
-            booking = dict(row)
+            booking = serialize_booking_datetimes(dict(row))
     except Exception as e:
         print(f"Error fetching booking: {e}")
         booking = {}
@@ -151,12 +246,12 @@ def get_user_bookings(user_id: int) -> List[Dict]:
                 b.booking_id,
                 b.user_id,
                 b.room_id,
-                b.booking_date,
-                b.start_time,
-                b.end_time,
+                TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                 b.status,
-                b.created_at,
-                b.updated_at,
+                TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                 u.username,
                 u.user_name,
                 r.room_name,
@@ -169,7 +264,10 @@ def get_user_bookings(user_id: int) -> List[Dict]:
             ORDER BY b.booking_date DESC, b.start_time DESC
         """, (user_id,))
         rows = cur.fetchall()
-        bookings = [dict(row) for row in rows]
+        bookings = []
+        for row in rows:
+            booking = serialize_booking_datetimes(dict(row))
+            bookings.append(booking)
     except Exception as e:
         print(f"Error fetching user bookings: {e}")
         bookings = []
@@ -201,12 +299,12 @@ def get_room_bookings(room_id: int, booking_date: Optional[str] = None) -> List[
                     b.booking_id,
                     b.user_id,
                     b.room_id,
-                    b.booking_date,
-                    b.start_time,
-                    b.end_time,
+                    TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                    TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                    TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                     b.status,
-                    b.created_at,
-                    b.updated_at,
+                    TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                    TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                     u.username,
                     u.user_name,
                     r.room_name,
@@ -224,12 +322,12 @@ def get_room_bookings(room_id: int, booking_date: Optional[str] = None) -> List[
                     b.booking_id,
                     b.user_id,
                     b.room_id,
-                    b.booking_date,
-                    b.start_time,
-                    b.end_time,
+                    TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                    TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                    TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                     b.status,
-                    b.created_at,
-                    b.updated_at,
+                    TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                    TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                     u.username,
                     u.user_name,
                     r.room_name,
@@ -243,7 +341,10 @@ def get_room_bookings(room_id: int, booking_date: Optional[str] = None) -> List[
             """, (room_id,))
         
         rows = cur.fetchall()
-        bookings = [dict(row) for row in rows]
+        bookings = []
+        for row in rows:
+            booking = serialize_booking_datetimes(dict(row))
+            bookings.append(booking)
     except Exception as e:
         print(f"Error fetching room bookings: {e}")
         bookings = []
@@ -476,26 +577,26 @@ def create_booking(booking_data: Dict) -> Dict:
         cur.execute("""
             INSERT INTO Bookings (user_id, room_id, booking_date, start_time, end_time, status)
             VALUES (%s, %s, %s, %s, %s, 'Confirmed')
-            RETURNING booking_id, user_id, room_id, booking_date, start_time, end_time, status, created_at, updated_at
+            RETURNING booking_id, user_id, room_id, TO_CHAR(booking_date, 'YYYY-MM-DD') as booking_date, TO_CHAR(start_time, 'HH24:MI:SS') as start_time, TO_CHAR(end_time, 'HH24:MI:SS') as end_time, status, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at, TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at
         """, (user_id, room_id, booking_date, start_time, end_time))
         
         row = cur.fetchone()
         conn.commit()
         
         if row:
-            result = dict(row)
+            result = serialize_booking_datetimes(dict(row))
             # Fetch additional details
             cur.execute("""
                 SELECT 
                     b.booking_id,
                     b.user_id,
                     b.room_id,
-                    b.booking_date,
-                    b.start_time,
-                    b.end_time,
+                    TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                    TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                    TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                     b.status,
-                    b.created_at,
-                    b.updated_at,
+                    TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+                    TO_CHAR(b.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
                     u.username,
                     u.user_name,
                     r.room_name,
@@ -508,7 +609,7 @@ def create_booking(booking_data: Dict) -> Dict:
             """, (result['booking_id'],))
             full_row = cur.fetchone()
             if full_row:
-                result = dict(full_row)
+                result = serialize_booking_datetimes(dict(full_row))
         
     except psycopg2.IntegrityError as e:
         if conn:
@@ -587,14 +688,14 @@ def update_booking(booking_id: int, booking_data: Dict, user_id: Optional[int] =
                 status = %s,
                 updated_at = CURRENT_TIMESTAMP
             WHERE booking_id = %s
-            RETURNING booking_id, user_id, room_id, booking_date, start_time, end_time, status, created_at, updated_at
+            RETURNING booking_id, user_id, room_id, TO_CHAR(booking_date, 'YYYY-MM-DD') as booking_date, TO_CHAR(start_time, 'HH24:MI:SS') as start_time, TO_CHAR(end_time, 'HH24:MI:SS') as end_time, status, TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at, TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at
         """, (room_id, booking_date, start_time, end_time, status, booking_id))
         
         row = cur.fetchone()
         conn.commit()
         
         if row:
-            result = dict(row)
+            result = serialize_booking_datetimes(dict(row))
             # Fetch additional details
             cur.execute("""
                 SELECT 
@@ -619,7 +720,7 @@ def update_booking(booking_id: int, booking_data: Dict, user_id: Optional[int] =
             """, (booking_id,))
             full_row = cur.fetchone()
             if full_row:
-                result = dict(full_row)
+                result = serialize_booking_datetimes(dict(full_row))
         
     except psycopg2.IntegrityError as e:
         if conn:
@@ -722,11 +823,11 @@ def get_conflicting_bookings(room_id: int, booking_date: str, start_time: str, e
                 b.booking_id,
                 b.user_id,
                 b.room_id,
-                b.booking_date,
-                b.start_time,
-                b.end_time,
+                TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                 b.status,
-                b.created_at,
+                TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
                 u.username,
                 u.user_name,
                 r.room_name
@@ -741,7 +842,10 @@ def get_conflicting_bookings(room_id: int, booking_date: str, start_time: str, e
         """, (room_id, booking_date, end_time, start_time))
         
         rows = cur.fetchall()
-        conflicts = [dict(row) for row in rows]
+        conflicts = []
+        for row in rows:
+            conflict = serialize_booking_datetimes(dict(row))
+            conflicts.append(conflict)
     except Exception as e:
         print(f"Error fetching conflicts: {e}")
         conflicts = []
@@ -833,11 +937,11 @@ def get_stuck_bookings() -> List[Dict]:
                 b.booking_id,
                 b.user_id,
                 b.room_id,
-                b.booking_date,
-                b.start_time,
-                b.end_time,
+                TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date,
+                TO_CHAR(b.start_time, 'HH24:MI:SS') as start_time,
+                TO_CHAR(b.end_time, 'HH24:MI:SS') as end_time,
                 b.status,
-                b.created_at,
+                TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
                 u.username,
                 r.room_name,
                 r.room_status
@@ -852,7 +956,10 @@ def get_stuck_bookings() -> List[Dict]:
         """)
         
         rows = cur.fetchall()
-        stuck = [dict(row) for row in rows]
+        stuck = []
+        for row in rows:
+            booking = serialize_booking_datetimes(dict(row))
+            stuck.append(booking)
     except Exception as e:
         print(f"Error fetching stuck bookings: {e}")
         stuck = []

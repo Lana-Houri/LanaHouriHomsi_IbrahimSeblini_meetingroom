@@ -9,7 +9,21 @@ import html
 
 
 def connect_to_db():
-    """Establish connection to PostgreSQL database."""
+    """
+    Establish connection to PostgreSQL database.
+    
+    Functionality:
+        Creates and returns a connection to the PostgreSQL database used for
+        storing review data. Uses hardcoded connection parameters.
+    
+    Parameters:
+        None
+    
+    Returns:
+        psycopg2.connection: Database connection object.
+        
+        Raises psycopg2.OperationalError if connection fails.
+    """
     return psycopg2.connect(
         host="db",
         database="meetingroom",
@@ -22,11 +36,16 @@ def sanitize_input(text: Optional[str]) -> Optional[str]:
     """
     Sanitize user input to prevent XSS and SQL injection.
     
-    Args:
-        text: Input text to sanitize.
-        
+    Functionality:
+        Escapes HTML characters to prevent XSS attacks and escapes single quotes
+        to prevent SQL injection. Strips whitespace from the input.
+    
+    Parameters:
+        text (Optional[str]): Input text to sanitize. Can be None.
+    
     Returns:
-        Sanitized text or None.
+        Optional[str]: Sanitized text with HTML characters escaped and SQL-injection
+        patterns removed, or None if input is None or empty.
     """
     if not text:
         return None
@@ -41,8 +60,34 @@ def get_all_reviews() -> List[Dict]:
     """
     Retrieve all reviews with user and room details.
     
+    Functionality:
+        Fetches all reviews from the database, including associated user and room
+        information. Returns reviews ordered by creation date (newest first).
+        Includes all review fields: rating, comment, flags, moderation status, etc.
+    
+    Parameters:
+        None
+    
     Returns:
-        List of review dictionaries.
+        List[Dict]: List of review dictionaries, each containing:
+            - review_id (int): Unique review identifier
+            - user_id (int): ID of the user who wrote the review
+            - room_id (int): ID of the room being reviewed
+            - rating (int): Rating from 1 to 5
+            - comment (str): Review comment text
+            - is_flagged (bool): Whether the review has been flagged
+            - flag_reason (str): Reason for flagging (if flagged)
+            - is_moderated (bool): Whether the review has been moderated
+            - is_hidden (bool): Whether the review is hidden from regular users
+            - moderated_by (int): ID of moderator who moderated the review
+            - created_at (datetime): Review creation timestamp
+            - updated_at (datetime): Last update timestamp
+            - username (str): Username of the reviewer
+            - user_name (str): Full name of the reviewer
+            - room_name (str): Name of the reviewed room
+            - room_location (str): Location of the reviewed room
+        
+        Returns empty list [] if an error occurs or no reviews exist.
     """
     reviews = []
     try:
@@ -86,11 +131,16 @@ def get_review_by_id(review_id: int) -> Dict:
     """
     Retrieve a specific review by ID.
     
-    Args:
-        review_id: The ID of the review to retrieve.
-        
+    Functionality:
+        Fetches a single review by its unique identifier, including associated
+        user and room information. Returns all review details.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to retrieve.
+    
     Returns:
-        Review dictionary or empty dict if not found.
+        Dict: Review dictionary containing the same fields as get_all_reviews(),
+        or empty dictionary {} if review is not found or an error occurs.
     """
     review = {}
     try:
@@ -135,12 +185,21 @@ def get_reviews_by_room(room_id: int, include_flagged: bool = False) -> List[Dic
     """
     Retrieve all reviews for a specific room.
     
-    Args:
-        room_id: The ID of the room.
-        include_flagged: Whether to include flagged reviews (moderators/admins only).
-        
+    Functionality:
+        Fetches all reviews for a given room. By default, excludes flagged and
+        hidden reviews (for regular users). When include_flagged=True, returns all
+        reviews including flagged ones (for moderators/admins). Reviews are ordered
+        by creation date (newest first).
+    
+    Parameters:
+        room_id (int): The unique identifier of the room whose reviews to retrieve.
+        include_flagged (bool, optional): Whether to include flagged reviews.
+            Defaults to False. Set to True for moderator/admin views.
+    
     Returns:
-        List of review dictionaries for the room.
+        List[Dict]: List of review dictionaries for the specified room, containing
+        the same fields as get_all_reviews(). Returns empty list [] if no reviews
+        exist for the room, if room doesn't exist, or if an error occurs.
     """
     reviews = []
     try:
@@ -215,11 +274,18 @@ def get_user_reviews(user_id: int) -> List[Dict]:
     """
     Retrieve all reviews by a specific user.
     
-    Args:
-        user_id: The ID of the user.
-        
+    Functionality:
+        Fetches all reviews written by a given user, including associated room
+        information. Returns reviews ordered by creation date (newest first).
+        Includes all review details.
+    
+    Parameters:
+        user_id (int): The unique identifier of the user whose reviews to retrieve.
+    
     Returns:
-        List of review dictionaries by the user.
+        List[Dict]: List of review dictionaries written by the specified user,
+        containing the same fields as get_all_reviews(). Returns empty list []
+        if user has no reviews, if user doesn't exist, or if an error occurs.
     """
     reviews = []
     try:
@@ -264,8 +330,18 @@ def get_flagged_reviews() -> List[Dict]:
     """
     Retrieve all flagged reviews for moderation.
     
+    Functionality:
+        Fetches all reviews that have been flagged as inappropriate and require
+        moderation. Used by moderators and admins to review and take action on
+        flagged content. Reviews are ordered by creation date (newest first).
+    
+    Parameters:
+        None
+    
     Returns:
-        List of flagged review dictionaries.
+        List[Dict]: List of flagged review dictionaries, each containing the same
+        fields as get_all_reviews(). Only includes reviews where is_flagged=True.
+        Returns empty list [] if no flagged reviews exist or if an error occurs.
     """
     reviews = []
     try:
@@ -308,8 +384,20 @@ def get_flagged_reviews() -> List[Dict]:
 
 def check_user_exists(user_id: int) -> bool:
     """
-    Check if a user exists.
-    First tries to call users service via circuit breaker, falls back to direct DB query.
+    Check if a user exists in the system.
+    
+    Functionality:
+        Verifies whether a user with the given ID exists. First attempts to call
+        the users microservice via circuit breaker pattern. If the service is
+        unavailable or circuit breaker is open, falls back to a direct database
+        query. This provides resilience in a microservices architecture.
+    
+    Parameters:
+        user_id (int): The unique identifier of the user to check.
+    
+    Returns:
+        bool: True if user exists, False otherwise (including if user doesn't
+        exist, service is unavailable, or an error occurs).
     """
     # Try to call users service with circuit breaker
     try:
@@ -362,8 +450,20 @@ def check_user_exists(user_id: int) -> bool:
 
 def check_room_exists(room_id: int) -> bool:
     """
-    Check if a room exists.
-    First tries to call rooms service via circuit breaker, falls back to direct DB query.
+    Check if a room exists in the system.
+    
+    Functionality:
+        Verifies whether a room with the given ID exists. First attempts to call
+        the rooms microservice via circuit breaker pattern. If the service is
+        unavailable or circuit breaker is open, falls back to a direct database
+        query. This provides resilience in a microservices architecture.
+    
+    Parameters:
+        room_id (int): The unique identifier of the room to check.
+    
+    Returns:
+        bool: True if room exists, False otherwise (including if room doesn't
+        exist, service is unavailable, or an error occurs).
     """
     # Try to call rooms service with circuit breaker
     try:
@@ -432,13 +532,48 @@ def check_room_exists(room_id: int) -> bool:
 
 def create_review(review_data: Dict) -> Dict:
     """
-    Create a new review.
+    Create a new review for a meeting room.
     
-    Args:
-        review_data: Dictionary containing review details (user_id, room_id, rating, comment).
-        
+    Functionality:
+        Creates a new review in the database after validating all required fields,
+        checking that the user and room exist, validating the rating (1-5), and
+        sanitizing the comment to prevent XSS and SQL injection attacks.
+    
+    Parameters:
+        review_data (Dict): Dictionary containing review details with keys:
+            - user_id (int, required): ID of the user submitting the review
+            - room_id (int, required): ID of the room being reviewed
+            - rating (int, required): Rating from 1 to 5
+            - comment (str, optional): Review comment text
+    
     Returns:
-        Created review dictionary or error message.
+        Dict: On success, returns dictionary containing:
+            - review_id (int): Unique identifier of the created review
+            - user_id (int): ID of the reviewer
+            - room_id (int): ID of the reviewed room
+            - rating (int): Rating value
+            - comment (str): Sanitized comment text
+            - is_flagged (bool): Flag status (defaults to False)
+            - is_moderated (bool): Moderation status (defaults to False)
+            - is_hidden (bool): Hidden status (defaults to False)
+            - created_at (datetime): Creation timestamp
+            - updated_at (datetime): Update timestamp
+            - username (str): Reviewer's username
+            - user_name (str): Reviewer's full name
+            - room_name (str): Room name
+            - room_location (str): Room location
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Missing required fields: user_id, room_id, rating"
+            - "Rating must be between 1 and 5"
+            - "Invalid rating value"
+            - "User does not exist"
+            - "Room does not exist"
+            - "Failed to create review: <error details>"
     """
     result = {}
     conn = None
@@ -543,15 +678,38 @@ def update_review(review_id: int, review_data: Dict, user_id: Optional[int] = No
     """
     Update an existing review.
     
-    Args:
-        review_id: The ID of the review to update.
-        review_data: Dictionary containing fields to update.
-        user_id: ID of the user making the request (for authorization).
-        is_admin: Whether the user is an admin.
-        is_moderator: Whether the user is a moderator (lowercase 'moderator' role).
-        
+    Functionality:
+        Updates one or more fields of an existing review. Validates authorization
+        (users can only update their own reviews unless they are admin/moderator),
+        validates rating if provided, and sanitizes comment text. Updates the
+        updated_at timestamp automatically.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to update.
+        review_data (Dict): Dictionary containing fields to update with keys:
+            - rating (int, optional): New rating value (1-5)
+            - comment (str, optional): New comment text
+        At least one field must be provided.
+        user_id (Optional[int]): ID of the user making the request (for authorization).
+            Required for non-admin/moderator users.
+        is_admin (bool): Whether the user is an admin. Defaults to False.
+        is_moderator (bool): Whether the user is a moderator. Defaults to False.
+    
     Returns:
-        Updated review dictionary or error message.
+        Dict: On success, returns dictionary containing the updated review with
+        all fields (same structure as get_review_by_id()).
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Unauthorized: You can only update your own reviews"
+            - "Rating must be between 1 and 5"
+            - "Invalid rating value"
+            - "No fields to update"
+            - "Failed to update review: <error details>"
     """
     result = {}
     conn = None
@@ -659,16 +817,35 @@ def update_review(review_id: int, review_data: Dict, user_id: Optional[int] = No
 
 def delete_review(review_id: int, user_id: Optional[int] = None, is_admin: bool = False, is_moderator: bool = False) -> Dict:
     """
-    Delete a review.
+    Delete a review from the database.
     
-    Args:
-        review_id: The ID of the review to delete.
-        user_id: ID of the user making the request (for authorization).
-        is_admin: Whether the user is an admin.
-        is_moderator: Whether the user is a moderator (lowercase 'moderator' role).
-        
+    Functionality:
+        Permanently deletes a review from the database. Validates authorization
+        (users can only delete their own reviews unless they are admin/moderator).
+        This is a hard delete - the review is completely removed from the database.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to delete.
+        user_id (Optional[int]): ID of the user making the request (for authorization).
+            Required for non-admin/moderator users.
+        is_admin (bool): Whether the user is an admin. Defaults to False.
+        is_moderator (bool): Whether the user is a moderator. Defaults to False.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review deleted successfully"
+            - review_id (int): ID of the deleted review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Unauthorized: You can only delete your own reviews"
+            - "Failed to delete review"
+            - "Failed to delete review: <error details>"
     """
     result = {}
     conn = None
@@ -713,15 +890,36 @@ def delete_review(review_id: int, user_id: Optional[int] = None, is_admin: bool 
 
 def flag_review(review_id: int, flag_reason: Optional[str] = None, user_id: Optional[int] = None) -> Dict:
     """
-    Flag a review as inappropriate.
+    Flag a review as inappropriate for moderation.
     
-    Args:
-        review_id: The ID of the review to flag.
-        flag_reason: Reason for flagging the review.
-        user_id: ID of the user flagging the review.
-        
+    Functionality:
+        Marks a review as flagged, indicating it may contain inappropriate content
+        and requires moderation. The flag reason is sanitized to prevent XSS attacks.
+        Once flagged, the review is hidden from regular users but visible to moderators
+        and admins. A review cannot be flagged if it is already flagged.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to flag.
+        flag_reason (Optional[str]): Reason for flagging the review. Defaults to
+            "Flagged by user" if not provided. Will be sanitized before storage.
+        user_id (Optional[int]): ID of the user flagging the review. Currently
+            stored but not used in the flagging logic.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review flagged successfully"
+            - review_id (int): ID of the flagged review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Review is already flagged"
+            - "Failed to flag review"
+            - "Failed to flag review: <error details>"
     """
     result = {}
     conn = None
@@ -775,12 +973,33 @@ def unflag_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
     """
     Unflag a review (moderator/admin only).
     
-    Args:
-        review_id: The ID of the review to unflag.
-        moderator_id: ID of the moderator/admin unflagging the review.
-        
+    Functionality:
+        Removes the flag from a review, indicating it has been reviewed and approved
+        by a moderator or admin. Marks the review as moderated and records the
+        moderator who performed the action. Once unflagged, the review becomes
+        visible to regular users again. A review cannot be unflagged if it is not
+        currently flagged.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to unflag.
+        moderator_id (Optional[int]): ID of the moderator or admin performing the
+            unflag action. Stored in moderated_by field.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review unflagged successfully"
+            - review_id (int): ID of the unflagged review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Review is not flagged"
+            - "Failed to unflag review"
+            - "Failed to unflag review: <error details>"
     """
     result = {}
     conn = None
@@ -831,14 +1050,33 @@ def unflag_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
 
 def remove_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
     """
-    Remove a review (moderator/admin only - soft delete by marking as moderated and flagged).
+    Remove a review (moderator/admin only - soft delete).
     
-    Args:
-        review_id: The ID of the review to remove.
-        moderator_id: ID of the moderator/admin removing the review.
-        
+    Functionality:
+        Soft deletes a review by marking it as moderated, flagged, and setting
+        the flag reason to "Removed by moderator". This hides the review from
+        regular users while keeping it in the database for audit purposes.
+        Records the moderator who performed the removal action.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to remove.
+        moderator_id (Optional[int]): ID of the moderator or admin performing the
+            removal action. Stored in moderated_by field.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review removed by moderator"
+            - review_id (int): ID of the removed review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Failed to remove review"
+            - "Failed to remove review: <error details>"
     """
     result = {}
     conn = None
@@ -888,12 +1126,31 @@ def restore_review(review_id: int, admin_id: Optional[int] = None) -> Dict:
     """
     Restore a removed/hidden review (Admin only).
     
-    Args:
-        review_id: The ID of the review to restore.
-        admin_id: ID of the admin restoring the review.
-        
+    Functionality:
+        Restores a previously removed or hidden review by clearing all moderation
+        flags (is_moderated, is_hidden, is_flagged) and resetting related fields
+        (flag_reason, moderated_by). This makes the review visible to all users
+        again and removes all moderation markers.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to restore.
+        admin_id (Optional[int]): ID of the admin performing the restore action.
+            Currently not stored but may be used for audit logging.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review restored successfully"
+            - review_id (int): ID of the restored review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Failed to restore review"
+            - "Failed to restore review: <error details>"
     """
     result = {}
     conn = None
@@ -944,15 +1201,34 @@ def restore_review(review_id: int, admin_id: Optional[int] = None) -> Dict:
 
 def hide_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
     """
-    Hide a review (Moderator/Admin only).
-    Hidden reviews are not shown to regular users.
+    Hide a review from regular users (Moderator/Admin only).
     
-    Args:
-        review_id: The ID of the review to hide.
-        moderator_id: ID of the moderator/admin hiding the review.
-        
+    Functionality:
+        Hides a review from regular users while keeping it visible to moderators
+        and admins. Marks the review as moderated and records the moderator who
+        performed the action. Hidden reviews are excluded from public listings
+        but remain in the database. A review cannot be hidden if it is already hidden.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to hide.
+        moderator_id (Optional[int]): ID of the moderator or admin performing the
+            hide action. Stored in moderated_by field.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review hidden successfully"
+            - review_id (int): ID of the hidden review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Review is already hidden"
+            - "Failed to hide review"
+            - "Failed to hide review: <error details>"
     """
     result = {}
     conn = None
@@ -1004,12 +1280,31 @@ def show_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
     """
     Show a hidden review (Moderator/Admin only).
     
-    Args:
-        review_id: The ID of the review to show.
-        moderator_id: ID of the moderator/admin showing the review.
-        
+    Functionality:
+        Makes a previously hidden review visible to regular users again by clearing
+        the is_hidden flag. Records the moderator who performed the action.
+        A review cannot be shown if it is not currently hidden.
+    
+    Parameters:
+        review_id (int): The unique identifier of the review to show.
+        moderator_id (Optional[int]): ID of the moderator or admin performing the
+            show action. Stored in moderated_by field.
+    
     Returns:
-        Success message or error.
+        Dict: On success, returns dictionary with:
+            - message (str): "Review shown successfully"
+            - review_id (int): ID of the shown review
+            - status (str): "success"
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
+            - status (str): "error"
+        
+        Possible errors:
+            - "Review not found"
+            - "Review is not hidden"
+            - "Failed to show review"
+            - "Failed to show review: <error details>"
     """
     result = {}
     conn = None
@@ -1058,11 +1353,31 @@ def show_review(review_id: int, moderator_id: Optional[int] = None) -> Dict:
 
 def get_review_reports() -> Dict:
     """
-    Get review moderation reports for moderators.
-    Includes statistics on flagged, hidden, and moderated reviews.
+    Get review moderation reports and statistics for moderators.
+    
+    Functionality:
+        Generates comprehensive statistics and reports about reviews in the system,
+        including totals, flagged reviews, hidden reviews, moderated reviews, average
+        ratings, rating distribution, and recent flagged reviews. Used by moderators
+        and admins to monitor review activity and moderation workload.
+    
+    Parameters:
+        None
     
     Returns:
-        Dictionary with review statistics and reports.
+        Dict: Dictionary containing review statistics with keys:
+            - total_reviews (int): Total number of reviews in the system
+            - flagged_reviews (int): Number of reviews that are currently flagged
+            - hidden_reviews (int): Number of reviews that are currently hidden
+            - moderated_reviews (int): Number of reviews that have been moderated
+            - average_rating (float): Average rating across all non-hidden reviews
+            - rating_distribution (List[Dict]): List of dictionaries with rating
+                and count, showing distribution of ratings (1-5)
+            - recent_flagged (List[Dict]): List of the 10 most recently flagged
+                reviews with their details
+        
+        On error, returns dictionary with:
+            - error (str): Error message describing what went wrong
     """
     reports = {}
     try:

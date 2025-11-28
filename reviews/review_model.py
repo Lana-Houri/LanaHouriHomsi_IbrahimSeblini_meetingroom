@@ -2,6 +2,7 @@
 Review Model
 Handles all database operations for room and service reviews.
 """
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, List, Optional
@@ -14,7 +15,8 @@ def connect_to_db():
     
     Functionality:
         Creates and returns a connection to the PostgreSQL database used for
-        storing review data. Uses hardcoded connection parameters.
+        storing review data. Uses environment variables if available, otherwise
+        falls back to default values.
     
     Parameters:
         None
@@ -25,10 +27,10 @@ def connect_to_db():
         Raises psycopg2.OperationalError if connection fails.
     """
     return psycopg2.connect(
-        host="db",
-        database="meetingroom",
-        user="admin",
-        password="password"
+        host=os.getenv("DB_HOST", "db"),
+        database=os.getenv("DB_NAME", "meetingroom"),
+        user=os.getenv("DB_USER", "admin"),
+        password=os.getenv("DB_PASSWORD", "password")
     )
 
 

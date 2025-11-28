@@ -58,31 +58,30 @@ services:
     networks:
       - meetingroom-network
 
+  bookings-service:
+    build: ./bookings
+    container_name: bookings_service
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_NAME=meetingroom
+      - DB_USER=admin
+      - DB_PASSWORD=password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - meetingroom-network
+
 networks:
   meetingroom-network:
     driver: bridge
 
 volumes:
   pgdata:
-
-#   # Service 3: Bookings Service
-#   bookings-service:
-#     build: ./bookings
-#     container_name: bookings_service
-#     restart: always
-#     ports:
-#       - "5002:5002"
-#     environment:
-#       - FLASK_ENV=development
-#       - DB_HOST=db
-#       - DB_NAME=meetingroom
-#       - DB_USER=admin
-#       - DB_PASSWORD=password
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#     networks:
-#       - meetingroom-network
 
 #   # Service 4: Reviews Service
 #   reviews-service:

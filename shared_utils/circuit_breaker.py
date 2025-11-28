@@ -128,7 +128,7 @@ def call_service_with_circuit_breaker(
         service_name: Name of target service ('users', 'rooms', etc.)
         method: HTTP method ('GET', 'POST', etc.)
         url: Full URL to call
-        **kwargs: Additional arguments for requests (headers, json, etc.)
+        **kwargs: Additional arguments for requests (headers, json, timeout, etc.)
         
     Returns:
         Response object
@@ -139,13 +139,16 @@ def call_service_with_circuit_breaker(
     """
     import requests.exceptions
     
+    # Extract timeout from kwargs if provided, otherwise use default
+    timeout = kwargs.pop('timeout', 5)
+    
     breaker = circuit_breakers.get(service_name)
     if not breaker:
         # No circuit breaker for this service, make direct call
-        return getattr(requests, method.lower())(url, timeout=5, **kwargs)
+        return getattr(requests, method.lower())(url, timeout=timeout, **kwargs)
     
     def make_request():
-        response = getattr(requests, method.lower())(url, timeout=5, **kwargs)
+        response = getattr(requests, method.lower())(url, timeout=timeout, **kwargs)
         # Treat non-2xx status codes as failures
         if response.status_code >= 400:
             raise requests.exceptions.HTTPError(f"HTTP {response.status_code}: {response.text}")

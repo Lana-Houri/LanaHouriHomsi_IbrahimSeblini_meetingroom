@@ -1,0 +1,1047 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shared_utils package &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="reviews package" href="reviews.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bookings.html">bookings package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reviews.html">reviews package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">shared_utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.api_versioning">shared_utils.api_versioning module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion"><code class="docutils literal notranslate"><span class="pre">APIVersion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.create_versioned_blueprint"><code class="docutils literal notranslate"><span class="pre">create_versioned_blueprint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.get_api_version_manager"><code class="docutils literal notranslate"><span class="pre">get_api_version_manager()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.init_api_versioning"><code class="docutils literal notranslate"><span class="pre">init_api_versioning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.versioned_route"><code class="docutils literal notranslate"><span class="pre">versioned_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.audit_logger">shared_utils.audit_logger module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.audit_logger.log_admin_action"><code class="docutils literal notranslate"><span class="pre">log_admin_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.audit_logger.log_request_response"><code class="docutils literal notranslate"><span class="pre">log_request_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.audit_logger.log_security_event"><code class="docutils literal notranslate"><span class="pre">log_security_event()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.audit_logger.sanitize_sensitive_data"><code class="docutils literal notranslate"><span class="pre">sanitize_sensitive_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.audit_logger.setup_audit_logger"><code class="docutils literal notranslate"><span class="pre">setup_audit_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.cache_manager">shared_utils.cache_manager module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager"><code class="docutils literal notranslate"><span class="pre">CacheManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.get_cache_manager"><code class="docutils literal notranslate"><span class="pre">get_cache_manager()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.init_cache_manager"><code class="docutils literal notranslate"><span class="pre">init_cache_manager()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.circuit_breaker">shared_utils.circuit_breaker module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreaker"><code class="docutils literal notranslate"><span class="pre">CircuitBreaker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreakerOpenError"><code class="docutils literal notranslate"><span class="pre">CircuitBreakerOpenError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitState"><code class="docutils literal notranslate"><span class="pre">CircuitState</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.call_service_with_circuit_breaker"><code class="docutils literal notranslate"><span class="pre">call_service_with_circuit_breaker()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.get_circuit_breaker_status"><code class="docutils literal notranslate"><span class="pre">get_circuit_breaker_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.reset_circuit_breaker"><code class="docutils literal notranslate"><span class="pre">reset_circuit_breaker()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.config_manager">shared_utils.config_manager module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager"><code class="docutils literal notranslate"><span class="pre">ConfigManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-utils-encryption-module">shared_utils.encryption module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils.error_handler">shared_utils.error_handler module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.APIException"><code class="docutils literal notranslate"><span class="pre">APIException</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.AuthenticationError"><code class="docutils literal notranslate"><span class="pre">AuthenticationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.AuthorizationError"><code class="docutils literal notranslate"><span class="pre">AuthorizationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.ConflictError"><code class="docutils literal notranslate"><span class="pre">ConflictError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.DatabaseError"><code class="docutils literal notranslate"><span class="pre">DatabaseError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.NotFoundError"><code class="docutils literal notranslate"><span class="pre">NotFoundError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.RateLimitError"><code class="docutils literal notranslate"><span class="pre">RateLimitError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.ServiceUnavailableError"><code class="docutils literal notranslate"><span class="pre">ServiceUnavailableError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.ValidationError"><code class="docutils literal notranslate"><span class="pre">ValidationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.create_error_response"><code class="docutils literal notranslate"><span class="pre">create_error_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.register_error_handlers"><code class="docutils literal notranslate"><span class="pre">register_error_handlers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-utils-rate-limiter-module">shared_utils.rate_limiter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-shared_utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bookings.html">bookings package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reviews.html">reviews package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">shared_utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.api_versioning">shared_utils.api_versioning module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion"><code class="docutils literal notranslate"><span class="pre">APIVersion</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion.get_latest_version"><code class="docutils literal notranslate"><span class="pre">APIVersion.get_latest_version()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion.get_version_from_request"><code class="docutils literal notranslate"><span class="pre">APIVersion.get_version_from_request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion.is_version_supported"><code class="docutils literal notranslate"><span class="pre">APIVersion.is_version_supported()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion.register_version"><code class="docutils literal notranslate"><span class="pre">APIVersion.register_version()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.api_versioning.create_versioned_blueprint"><code class="docutils literal notranslate"><span class="pre">create_versioned_blueprint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.api_versioning.get_api_version_manager"><code class="docutils literal notranslate"><span class="pre">get_api_version_manager()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.api_versioning.init_api_versioning"><code class="docutils literal notranslate"><span class="pre">init_api_versioning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.api_versioning.versioned_route"><code class="docutils literal notranslate"><span class="pre">versioned_route()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.audit_logger">shared_utils.audit_logger module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.audit_logger.log_admin_action"><code class="docutils literal notranslate"><span class="pre">log_admin_action()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.audit_logger.log_request_response"><code class="docutils literal notranslate"><span class="pre">log_request_response()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.audit_logger.log_security_event"><code class="docutils literal notranslate"><span class="pre">log_security_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.audit_logger.sanitize_sensitive_data"><code class="docutils literal notranslate"><span class="pre">sanitize_sensitive_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.audit_logger.setup_audit_logger"><code class="docutils literal notranslate"><span class="pre">setup_audit_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.cache_manager">shared_utils.cache_manager module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager"><code class="docutils literal notranslate"><span class="pre">CacheManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager.cached"><code class="docutils literal notranslate"><span class="pre">CacheManager.cached()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager.clear"><code class="docutils literal notranslate"><span class="pre">CacheManager.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager.delete"><code class="docutils literal notranslate"><span class="pre">CacheManager.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager.get"><code class="docutils literal notranslate"><span class="pre">CacheManager.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager.set"><code class="docutils literal notranslate"><span class="pre">CacheManager.set()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.cache_manager.get_cache_manager"><code class="docutils literal notranslate"><span class="pre">get_cache_manager()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.cache_manager.init_cache_manager"><code class="docutils literal notranslate"><span class="pre">init_cache_manager()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.circuit_breaker">shared_utils.circuit_breaker module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreaker"><code class="docutils literal notranslate"><span class="pre">CircuitBreaker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreaker.call"><code class="docutils literal notranslate"><span class="pre">CircuitBreaker.call()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreaker.reset"><code class="docutils literal notranslate"><span class="pre">CircuitBreaker.reset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreakerOpenError"><code class="docutils literal notranslate"><span class="pre">CircuitBreakerOpenError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitState"><code class="docutils literal notranslate"><span class="pre">CircuitState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitState.CLOSED"><code class="docutils literal notranslate"><span class="pre">CircuitState.CLOSED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitState.HALF_OPEN"><code class="docutils literal notranslate"><span class="pre">CircuitState.HALF_OPEN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitState.OPEN"><code class="docutils literal notranslate"><span class="pre">CircuitState.OPEN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.call_service_with_circuit_breaker"><code class="docutils literal notranslate"><span class="pre">call_service_with_circuit_breaker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.get_circuit_breaker_status"><code class="docutils literal notranslate"><span class="pre">get_circuit_breaker_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.circuit_breaker.reset_circuit_breaker"><code class="docutils literal notranslate"><span class="pre">reset_circuit_breaker()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.config_manager">shared_utils.config_manager module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager"><code class="docutils literal notranslate"><span class="pre">ConfigManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager.get_api_keys"><code class="docutils literal notranslate"><span class="pre">ConfigManager.get_api_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager.get_db_config"><code class="docutils literal notranslate"><span class="pre">ConfigManager.get_db_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager.get_encryption_key"><code class="docutils literal notranslate"><span class="pre">ConfigManager.get_encryption_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.config_manager.ConfigManager.get_secret"><code class="docutils literal notranslate"><span class="pre">ConfigManager.get_secret()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-utils-encryption-module">shared_utils.encryption module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils.error_handler">shared_utils.error_handler module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.APIException"><code class="docutils literal notranslate"><span class="pre">APIException</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared_utils.error_handler.APIException.to_dict"><code class="docutils literal notranslate"><span class="pre">APIException.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.AuthenticationError"><code class="docutils literal notranslate"><span class="pre">AuthenticationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.AuthorizationError"><code class="docutils literal notranslate"><span class="pre">AuthorizationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.ConflictError"><code class="docutils literal notranslate"><span class="pre">ConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.DatabaseError"><code class="docutils literal notranslate"><span class="pre">DatabaseError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.NotFoundError"><code class="docutils literal notranslate"><span class="pre">NotFoundError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.RateLimitError"><code class="docutils literal notranslate"><span class="pre">RateLimitError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.ServiceUnavailableError"><code class="docutils literal notranslate"><span class="pre">ServiceUnavailableError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.ValidationError"><code class="docutils literal notranslate"><span class="pre">ValidationError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.create_error_response"><code class="docutils literal notranslate"><span class="pre">create_error_response()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared_utils.error_handler.register_error_handlers"><code class="docutils literal notranslate"><span class="pre">register_error_handlers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-utils-rate-limiter-module">shared_utils.rate_limiter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-shared_utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a></li>
+      <li class="breadcrumb-item active">shared_utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/shared_utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="shared-utils-package">
+<h1>shared_utils package<a class="headerlink" href="#shared-utils-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-shared_utils.api_versioning">
+<span id="shared-utils-api-versioning-module"></span><h2>shared_utils.api_versioning module<a class="headerlink" href="#module-shared_utils.api_versioning" title="Link to this heading"></a></h2>
+<p>API Versioning System
+Provides API versioning support to ensure backward compatibility.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.APIVersion">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.api_versioning.</span></span><span class="sig-name descname"><span class="pre">APIVersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported_versions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#APIVersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.APIVersion" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>API Version Manager</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Manages API versions and routes requests to appropriate version handlers.
+Supports semantic versioning (major.minor.patch) and backward compatibility.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default_version</strong> (<em>str</em>) – Default API version (e.g., “v1”)</p></li>
+<li><p><strong>supported_versions</strong> (<em>list</em>) – List of supported API versions</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.APIVersion.get_latest_version">
+<span class="sig-name descname"><span class="pre">get_latest_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#APIVersion.get_latest_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.APIVersion.get_latest_version" title="Link to this definition"></a></dt>
+<dd><p>Get the latest supported API version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Latest version string</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.APIVersion.get_version_from_request">
+<span class="sig-name descname"><span class="pre">get_version_from_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#APIVersion.get_version_from_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.APIVersion.get_version_from_request" title="Link to this definition"></a></dt>
+<dd><p>Extract API version from request (header or URL path).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Checks for version in:
+1. URL path (/api/v1/…)
+2. Accept header (application/vnd.api.v1+json)
+3. X-API-Version header</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>API version or default version</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.APIVersion.is_version_supported">
+<span class="sig-name descname"><span class="pre">is_version_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#APIVersion.is_version_supported"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.APIVersion.is_version_supported" title="Link to this definition"></a></dt>
+<dd><p>Check if a version is supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – API version to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if version is supported</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.APIVersion.register_version">
+<span class="sig-name descname"><span class="pre">register_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blueprint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Blueprint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#APIVersion.register_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.APIVersion.register_version" title="Link to this definition"></a></dt>
+<dd><p>Register a blueprint for a specific API version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>str</em>) – API version (e.g., “v1”, “v2”)</p></li>
+<li><p><strong>blueprint</strong> (<em>Blueprint</em>) – Flask blueprint for this version</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.create_versioned_blueprint">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.api_versioning.</span></span><span class="sig-name descname"><span class="pre">create_versioned_blueprint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Blueprint</span></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#create_versioned_blueprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.create_versioned_blueprint" title="Link to this definition"></a></dt>
+<dd><p>Create a versioned blueprint.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Creates a Flask blueprint with version prefix.
+Automatically registers with API version manager.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>str</em>) – API version (e.g., “v1”)</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Blueprint name</p></li>
+<li><p><strong>import_name</strong> (<em>str</em>) – Import name</p></li>
+<li><p><strong>url_prefix</strong> (<em>str</em><em>, </em><em>optional</em>) – URL prefix (default: /api/{version})</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Versioned Flask blueprint</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Blueprint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.get_api_version_manager">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.api_versioning.</span></span><span class="sig-name descname"><span class="pre">get_api_version_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion" title="shared_utils.api_versioning.APIVersion"><span class="pre">APIVersion</span></a></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#get_api_version_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.get_api_version_manager" title="Link to this definition"></a></dt>
+<dd><p>Get or create the global API version manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Global API version manager instance</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#shared_utils.api_versioning.APIVersion" title="shared_utils.api_versioning.APIVersion">APIVersion</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.init_api_versioning">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.api_versioning.</span></span><span class="sig-name descname"><span class="pre">init_api_versioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported_versions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#shared_utils.api_versioning.APIVersion" title="shared_utils.api_versioning.APIVersion"><span class="pre">APIVersion</span></a></span></span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#init_api_versioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.init_api_versioning" title="Link to this definition"></a></dt>
+<dd><p>Initialize the global API version manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default_version</strong> (<em>str</em>) – Default API version</p></li>
+<li><p><strong>supported_versions</strong> (<em>list</em>) – List of supported versions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Initialized API version manager</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#shared_utils.api_versioning.APIVersion" title="shared_utils.api_versioning.APIVersion">APIVersion</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.api_versioning.versioned_route">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.api_versioning.</span></span><span class="sig-name descname"><span class="pre">versioned_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/api_versioning.html#versioned_route"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.api_versioning.versioned_route" title="Link to this definition"></a></dt>
+<dd><p>Decorator to create versioned routes.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Creates a route that is version-specific.
+Routes are automatically prefixed with /api/{version}/</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>str</em>) – API version (e.g., “v1”)</p></li>
+<li><p><strong>rule</strong> (<em>str</em>) – URL rule</p></li>
+<li><p><strong>**options</strong> – Additional route options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorator function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-shared_utils.audit_logger">
+<span id="shared-utils-audit-logger-module"></span><h2>shared_utils.audit_logger module<a class="headerlink" href="#module-shared_utils.audit_logger" title="Link to this heading"></a></h2>
+<p>Auditing and Logging System
+Logs all API requests and responses for auditing purposes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.audit_logger.log_admin_action">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.audit_logger.</span></span><span class="sig-name descname"><span class="pre">log_admin_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/audit_logger.html#log_admin_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.audit_logger.log_admin_action" title="Link to this definition"></a></dt>
+<dd><p>Log administrative actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action</strong> – Description of the action</p></li>
+<li><p><strong>details</strong> – Additional details</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.audit_logger.log_request_response">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.audit_logger.</span></span><span class="sig-name descname"><span class="pre">log_request_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/audit_logger.html#log_request_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.audit_logger.log_request_response" title="Link to this definition"></a></dt>
+<dd><p>Decorator to log API requests and responses.</p>
+<dl>
+<dt>Usage:</dt><dd><p>&#64;log_request_response
+&#64;app.route(‘/api/endpoint’)
+def my_endpoint():</p>
+<blockquote>
+<div><p>…</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.audit_logger.log_security_event">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.audit_logger.</span></span><span class="sig-name descname"><span class="pre">log_security_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/audit_logger.html#log_security_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.audit_logger.log_security_event" title="Link to this definition"></a></dt>
+<dd><p>Log security-related events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_type</strong> – Type of security event</p></li>
+<li><p><strong>details</strong> – Additional details</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.audit_logger.sanitize_sensitive_data">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.audit_logger.</span></span><span class="sig-name descname"><span class="pre">sanitize_sensitive_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/audit_logger.html#sanitize_sensitive_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.audit_logger.sanitize_sensitive_data" title="Link to this definition"></a></dt>
+<dd><p>Remove sensitive information from data before logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – Dictionary or list to sanitize</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sanitized data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.audit_logger.setup_audit_logger">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.audit_logger.</span></span><span class="sig-name descname"><span class="pre">setup_audit_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'audit.log'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/audit_logger.html#setup_audit_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.audit_logger.setup_audit_logger" title="Link to this definition"></a></dt>
+<dd><p>Setup audit logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_file</strong> – Path to audit log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-shared_utils.cache_manager">
+<span id="shared-utils-cache-manager-module"></span><h2>shared_utils.cache_manager module<a class="headerlink" href="#module-shared_utils.cache_manager" title="Link to this heading"></a></h2>
+<p>Cache Manager
+Provides caching functionality for frequently accessed data like room availability and user data.
+Supports both in-memory caching and Redis (if available).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.cache_manager.</span></span><span class="sig-name descname"><span class="pre">CacheManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_ttl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Cache Manager for storing and retrieving cached data.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Provides caching mechanism for frequently accessed data.
+Supports both Redis (distributed) and in-memory caching.
+Automatically handles cache expiration and key generation.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>redis_host</strong> (<em>str</em><em>, </em><em>optional</em>) – Redis host (default: from env or ‘localhost’)</p></li>
+<li><p><strong>redis_port</strong> (<em>int</em><em>, </em><em>optional</em>) – Redis port (default: from env or 6379)</p></li>
+<li><p><strong>redis_db</strong> (<em>int</em><em>, </em><em>optional</em>) – Redis database number (default: 0)</p></li>
+<li><p><strong>default_ttl</strong> (<em>int</em><em>, </em><em>optional</em>) – Default time-to-live in seconds (default: 300)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager.cached">
+<span class="sig-name descname"><span class="pre">cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager.cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager.cached" title="Link to this definition"></a></dt>
+<dd><p>Decorator to cache function results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefix</strong> (<em>str</em>) – Cache key prefix</p></li>
+<li><p><strong>ttl</strong> (<em>int</em><em>, </em><em>optional</em>) – Time-to-live in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated function with caching</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager.clear" title="Link to this definition"></a></dt>
+<dd><p>Clear cache entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pattern</strong> (<em>str</em><em>, </em><em>optional</em>) – Pattern to match keys (e.g., “room:<a href="#id1"><span class="problematic" id="id2">*</span></a>”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of keys deleted</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager.delete" title="Link to this definition"></a></dt>
+<dd><p>Delete a key from cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – Cache key to delete</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if successful, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager.get" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a value from cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – Cache key</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cached value if found and not expired, None otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.CacheManager.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#CacheManager.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.CacheManager.set" title="Link to this definition"></a></dt>
+<dd><p>Store a value in cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Cache key</p></li>
+<li><p><strong>value</strong> (<em>Any</em>) – Value to cache (must be JSON serializable)</p></li>
+<li><p><strong>ttl</strong> (<em>int</em><em>, </em><em>optional</em>) – Time-to-live in seconds (default: self.default_ttl)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if successful, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.get_cache_manager">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.cache_manager.</span></span><span class="sig-name descname"><span class="pre">get_cache_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager" title="shared_utils.cache_manager.CacheManager"><span class="pre">CacheManager</span></a></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#get_cache_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.get_cache_manager" title="Link to this definition"></a></dt>
+<dd><p>Get or create the global cache manager instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Global cache manager instance</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#shared_utils.cache_manager.CacheManager" title="shared_utils.cache_manager.CacheManager">CacheManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.cache_manager.init_cache_manager">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.cache_manager.</span></span><span class="sig-name descname"><span class="pre">init_cache_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">redis_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_ttl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#shared_utils.cache_manager.CacheManager" title="shared_utils.cache_manager.CacheManager"><span class="pre">CacheManager</span></a></span></span><a class="reference internal" href="_modules/shared_utils/cache_manager.html#init_cache_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.cache_manager.init_cache_manager" title="Link to this definition"></a></dt>
+<dd><p>Initialize the global cache manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>redis_host</strong> (<em>str</em><em>, </em><em>optional</em>) – Redis host</p></li>
+<li><p><strong>redis_port</strong> (<em>int</em><em>, </em><em>optional</em>) – Redis port</p></li>
+<li><p><strong>redis_db</strong> (<em>int</em>) – Redis database number</p></li>
+<li><p><strong>default_ttl</strong> (<em>int</em>) – Default time-to-live in seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Initialized cache manager instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#shared_utils.cache_manager.CacheManager" title="shared_utils.cache_manager.CacheManager">CacheManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-shared_utils.circuit_breaker">
+<span id="shared-utils-circuit-breaker-module"></span><h2>shared_utils.circuit_breaker module<a class="headerlink" href="#module-shared_utils.circuit_breaker" title="Link to this heading"></a></h2>
+<p>Simple Circuit Breaker Pattern Implementation
+Provides fault tolerance for inter-service communication.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitBreaker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">CircuitBreaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failure_threshold:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_timeout:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_exception:</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'Exception'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#CircuitBreaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitBreaker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Simple circuit breaker implementation.</p>
+<p>States:
+- CLOSED: Normal operation, requests pass through
+- OPEN: Too many failures, reject requests immediately
+- HALF_OPEN: Testing if service recovered, allow limited requests</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitBreaker.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#CircuitBreaker.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitBreaker.call" title="Link to this definition"></a></dt>
+<dd><p>Execute function with circuit breaker protection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – Function to execute</p></li>
+<li><p><strong>*args</strong> – Arguments for function</p></li>
+<li><p><strong>**kwargs</strong> – <p>Arguments for function</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Function result</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreakerOpenError" title="shared_utils.circuit_breaker.CircuitBreakerOpenError"><strong>CircuitBreakerOpenError</strong></a> – If circuit is open</p></li>
+<li><p><strong>Exception</strong> – Original exception from function</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitBreaker.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#CircuitBreaker.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitBreaker.reset" title="Link to this definition"></a></dt>
+<dd><p>Manually reset circuit breaker to closed state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitBreakerOpenError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">CircuitBreakerOpenError</span></span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#CircuitBreakerOpenError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitBreakerOpenError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when circuit breaker is open and request is rejected.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">CircuitState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#CircuitState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitState" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitState.CLOSED">
+<span class="sig-name descname"><span class="pre">CLOSED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'closed'</span></em><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitState.CLOSED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitState.HALF_OPEN">
+<span class="sig-name descname"><span class="pre">HALF_OPEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'half_open'</span></em><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitState.HALF_OPEN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.CircuitState.OPEN">
+<span class="sig-name descname"><span class="pre">OPEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'open'</span></em><a class="headerlink" href="#shared_utils.circuit_breaker.CircuitState.OPEN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.call_service_with_circuit_breaker">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">call_service_with_circuit_breaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Response</span></span></span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#call_service_with_circuit_breaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.call_service_with_circuit_breaker" title="Link to this definition"></a></dt>
+<dd><p>Make HTTP request to another service with circuit breaker protection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_name</strong> – Name of target service (‘users’, ‘rooms’, etc.)</p></li>
+<li><p><strong>method</strong> – HTTP method (‘GET’, ‘POST’, etc.)</p></li>
+<li><p><strong>url</strong> – Full URL to call</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments for requests (headers, json, timeout, etc.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response object</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#shared_utils.circuit_breaker.CircuitBreakerOpenError" title="shared_utils.circuit_breaker.CircuitBreakerOpenError"><strong>CircuitBreakerOpenError</strong></a> – If circuit is open</p></li>
+<li><p><strong>requests.RequestException</strong> – If request fails</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.get_circuit_breaker_status">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">get_circuit_breaker_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#get_circuit_breaker_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.get_circuit_breaker_status" title="Link to this definition"></a></dt>
+<dd><p>Get status of circuit breaker(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>service_name</strong> – Name of service, or None for all services</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with circuit breaker status</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.circuit_breaker.reset_circuit_breaker">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.circuit_breaker.</span></span><span class="sig-name descname"><span class="pre">reset_circuit_breaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/shared_utils/circuit_breaker.html#reset_circuit_breaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.circuit_breaker.reset_circuit_breaker" title="Link to this definition"></a></dt>
+<dd><p>Manually reset a circuit breaker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>service_name</strong> – Name of service to reset</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Success message</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-shared_utils.config_manager">
+<span id="shared-utils-config-manager-module"></span><h2>shared_utils.config_manager module<a class="headerlink" href="#module-shared_utils.config_manager" title="Link to this heading"></a></h2>
+<p>Secure Configuration Management
+Manages sensitive configuration with support for AWS Secrets Manager.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="shared_utils.config_manager.ConfigManager">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.config_manager.</span></span><span class="sig-name descname"><span class="pre">ConfigManager</span></span><a class="reference internal" href="_modules/shared_utils/config_manager.html#ConfigManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.config_manager.ConfigManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages application configuration securely.
+Supports:
+- Environment variables (default)
+- AWS Secrets Manager (optional)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.config_manager.ConfigManager.get_api_keys">
+<span class="sig-name descname"><span class="pre">get_api_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/shared_utils/config_manager.html#ConfigManager.get_api_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.config_manager.ConfigManager.get_api_keys" title="Link to this definition"></a></dt>
+<dd><p>Get API keys for external services.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of API keys</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.config_manager.ConfigManager.get_db_config">
+<span class="sig-name descname"><span class="pre">get_db_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/shared_utils/config_manager.html#ConfigManager.get_db_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.config_manager.ConfigManager.get_db_config" title="Link to this definition"></a></dt>
+<dd><p>Get database configuration securely.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with db_host, db_name, db_user, db_password</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.config_manager.ConfigManager.get_encryption_key">
+<span class="sig-name descname"><span class="pre">get_encryption_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/shared_utils/config_manager.html#ConfigManager.get_encryption_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.config_manager.ConfigManager.get_encryption_key" title="Link to this definition"></a></dt>
+<dd><p>Get encryption key securely.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Encryption key or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.config_manager.ConfigManager.get_secret">
+<span class="sig-name descname"><span class="pre">get_secret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/shared_utils/config_manager.html#ConfigManager.get_secret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.config_manager.ConfigManager.get_secret" title="Link to this definition"></a></dt>
+<dd><p>Get secret value from environment or AWS Secrets Manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Secret key name</p></li>
+<li><p><strong>default</strong> – Default value if not found</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Secret value or default</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="shared-utils-encryption-module">
+<h2>shared_utils.encryption module<a class="headerlink" href="#shared-utils-encryption-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-shared_utils.error_handler">
+<span id="shared-utils-error-handler-module"></span><h2>shared_utils.error_handler module<a class="headerlink" href="#module-shared_utils.error_handler" title="Link to this heading"></a></h2>
+<p>Custom Exception Handling Framework
+Provides standardized error handling and error messages across all services.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.APIException">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">APIException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#APIException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.APIException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base exception class for API errors.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Base class for all custom API exceptions.
+Provides standardized error response format.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>str</em>) – Error message</p></li>
+<li><p><strong>status_code</strong> (<em>int</em>) – HTTP status code (default: 500)</p></li>
+<li><p><strong>error_code</strong> (<em>str</em><em>, </em><em>optional</em>) – Application-specific error code</p></li>
+<li><p><strong>details</strong> (<em>dict</em><em>, </em><em>optional</em>) – Additional error details</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="shared_utils.error_handler.APIException.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/shared_utils/error_handler.html#APIException.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.APIException.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Convert exception to dictionary for JSON response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Error response dictionary</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.AuthenticationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">AuthenticationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Authentication</span> <span class="pre">required'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#AuthenticationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.AuthenticationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for authentication errors (401 Unauthorized).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when authentication fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.AuthorizationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">AuthorizationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Insufficient</span> <span class="pre">permissions'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#AuthorizationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.AuthorizationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for authorization errors (403 Forbidden).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when user lacks required permissions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.ConflictError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">ConflictError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conflict_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#ConflictError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.ConflictError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for resource conflict errors (409 Conflict).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when operation conflicts with existing resource state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.DatabaseError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">DatabaseError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Database</span> <span class="pre">operation</span> <span class="pre">failed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#DatabaseError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.DatabaseError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for database operation errors (500 Internal Server Error).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when database operations fail.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.NotFoundError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">NotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#NotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.NotFoundError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for resource not found errors (404 Not Found).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when requested resource does not exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.RateLimitError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">RateLimitError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Rate</span> <span class="pre">limit</span> <span class="pre">exceeded'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#RateLimitError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.RateLimitError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for rate limit errors (429 Too Many Requests).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when rate limit is exceeded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.ServiceUnavailableError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">ServiceUnavailableError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#ServiceUnavailableError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.ServiceUnavailableError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for service unavailable errors (503 Service Unavailable).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when a dependent service is unavailable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="shared_utils.error_handler.ValidationError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">ValidationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#ValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.ValidationError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#shared_utils.error_handler.APIException" title="shared_utils.error_handler.APIException"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIException</span></code></a></p>
+<p>Exception for validation errors (400 Bad Request).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Raised when request validation fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.error_handler.create_error_response">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">create_error_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/shared_utils/error_handler.html#create_error_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.create_error_response" title="Link to this definition"></a></dt>
+<dd><p>Create a standardized error response.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Helper function to create standardized error responses.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>str</em>) – Error message</p></li>
+<li><p><strong>status_code</strong> (<em>int</em>) – HTTP status code</p></li>
+<li><p><strong>error_code</strong> (<em>str</em><em>, </em><em>optional</em>) – Error code</p></li>
+<li><p><strong>details</strong> (<em>dict</em><em>, </em><em>optional</em>) – Additional details</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(JSON response, status_code)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="shared_utils.error_handler.register_error_handlers">
+<span class="sig-prename descclassname"><span class="pre">shared_utils.error_handler.</span></span><span class="sig-name descname"><span class="pre">register_error_handlers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/shared_utils/error_handler.html#register_error_handlers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#shared_utils.error_handler.register_error_handlers" title="Link to this definition"></a></dt>
+<dd><p>Register global error handlers for Flask application.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Registers error handlers for custom exceptions and general exceptions.
+Provides standardized error responses across all services.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>app</strong> – Flask application instance</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="shared-utils-rate-limiter-module">
+<h2>shared_utils.rate_limiter module<a class="headerlink" href="#shared-utils-rate-limiter-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-shared_utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-shared_utils" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reviews.html" class="btn btn-neutral float-left" title="reviews package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shared_utils.api_versioning &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">shared_utils.api_versioning</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for shared_utils.api_versioning</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">API Versioning System</span>
+<span class="sd">Provides API versioning support to ensure backward compatibility.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+
+<div class="viewcode-block" id="APIVersion">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.APIVersion">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">APIVersion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    API Version Manager</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Manages API versions and routes requests to appropriate version handlers.</span>
+<span class="sd">        Supports semantic versioning (major.minor.patch) and backward compatibility.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        default_version (str): Default API version (e.g., &quot;v1&quot;)</span>
+<span class="sd">        supported_versions (list): List of supported API versions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span> <span class="n">supported_versions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_version</span> <span class="o">=</span> <span class="n">default_version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span> <span class="o">=</span> <span class="n">supported_versions</span> <span class="ow">or</span> <span class="p">[</span><span class="n">default_version</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version_handlers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    
+<div class="viewcode-block" id="APIVersion.register_version">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.APIVersion.register_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">blueprint</span><span class="p">:</span> <span class="n">Blueprint</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a blueprint for a specific API version.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            version (str): API version (e.g., &quot;v1&quot;, &quot;v2&quot;)</span>
+<span class="sd">            blueprint (Blueprint): Flask blueprint for this version</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">version_handlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version_handlers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+    
+<div class="viewcode-block" id="APIVersion.get_version_from_request">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.APIVersion.get_version_from_request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_version_from_request</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract API version from request (header or URL path).</span>
+<span class="sd">        </span>
+<span class="sd">        Functionality:</span>
+<span class="sd">            Checks for version in:</span>
+<span class="sd">            1. URL path (/api/v1/...)</span>
+<span class="sd">            2. Accept header (application/vnd.api.v1+json)</span>
+<span class="sd">            3. X-API-Version header</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: API version or default version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check URL path</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">version_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/v(\d+)/&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version_match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">version_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Check Accept header</span>
+        <span class="n">accept_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Accept&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">version_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;vnd\.api\.v(\d+)&#39;</span><span class="p">,</span> <span class="n">accept_header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version_match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">version_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="c1"># Check X-API-Version header</span>
+        <span class="n">version_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;X-API-Version&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version_header</span><span class="p">:</span>
+            <span class="n">version_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;v?(\d+)&#39;</span><span class="p">,</span> <span class="n">version_header</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version_match</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">version_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_version</span></div>
+
+    
+<div class="viewcode-block" id="APIVersion.is_version_supported">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.APIVersion.is_version_supported">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_version_supported</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a version is supported.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            version (str): API version to check</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if version is supported</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span></div>
+
+    
+<div class="viewcode-block" id="APIVersion.get_latest_version">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.APIVersion.get_latest_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_latest_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the latest supported API version.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Latest version string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_version</span>
+        
+        <span class="c1"># Extract version numbers and sort</span>
+        <span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_versions</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;v(\d+)&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">v</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">versions</span><span class="p">:</span>
+            <span class="n">versions</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">versions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_version</span></div>
+</div>
+
+
+
+<span class="c1"># Global API version manager</span>
+<span class="n">_api_version_manager</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="get_api_version_manager">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.get_api_version_manager">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_api_version_manager</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">APIVersion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get or create the global API version manager.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        APIVersion: Global API version manager instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_api_version_manager</span>
+    <span class="k">if</span> <span class="n">_api_version_manager</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_api_version_manager</span> <span class="o">=</span> <span class="n">APIVersion</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_api_version_manager</span></div>
+
+
+
+<div class="viewcode-block" id="init_api_versioning">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.init_api_versioning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_api_versioning</span><span class="p">(</span><span class="n">default_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span> 
+                       <span class="n">supported_versions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">APIVersion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize the global API version manager.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        default_version (str): Default API version</span>
+<span class="sd">        supported_versions (list): List of supported versions</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        APIVersion: Initialized API version manager</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_api_version_manager</span>
+    <span class="n">_api_version_manager</span> <span class="o">=</span> <span class="n">APIVersion</span><span class="p">(</span><span class="n">default_version</span><span class="p">,</span> <span class="n">supported_versions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_api_version_manager</span></div>
+
+
+
+<div class="viewcode-block" id="versioned_route">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.versioned_route">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">versioned_route</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to create versioned routes.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Creates a route that is version-specific.</span>
+<span class="sd">        Routes are automatically prefixed with /api/{version}/</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        version (str): API version (e.g., &quot;v1&quot;)</span>
+<span class="sd">        rule (str): URL rule</span>
+<span class="sd">        **options: Additional route options</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        function: Decorator function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># Check if requested version matches</span>
+            <span class="n">requested_version</span> <span class="o">=</span> <span class="n">get_api_version_manager</span><span class="p">()</span><span class="o">.</span><span class="n">get_version_from_request</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">requested_version</span> <span class="o">!=</span> <span class="n">version</span><span class="p">:</span>
+                <span class="c1"># Try to find compatible version</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">get_api_version_manager</span><span class="p">()</span><span class="o">.</span><span class="n">is_version_supported</span><span class="p">(</span><span class="n">requested_version</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+                        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;UNSUPPORTED_VERSION&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;API version </span><span class="si">{</span><span class="n">requested_version</span><span class="si">}</span><span class="s2"> is not supported&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;supported_versions&quot;</span><span class="p">:</span> <span class="n">get_api_version_manager</span><span class="p">()</span><span class="o">.</span><span class="n">supported_versions</span><span class="p">,</span>
+                        <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">400</span>
+                    <span class="p">}),</span> <span class="mi">400</span>
+            
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="create_versioned_blueprint">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.api_versioning.create_versioned_blueprint">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_versioned_blueprint</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">import_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                               <span class="n">url_prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Blueprint</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a versioned blueprint.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Creates a Flask blueprint with version prefix.</span>
+<span class="sd">        Automatically registers with API version manager.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        version (str): API version (e.g., &quot;v1&quot;)</span>
+<span class="sd">        name (str): Blueprint name</span>
+<span class="sd">        import_name (str): Import name</span>
+<span class="sd">        url_prefix (str, optional): URL prefix (default: /api/{version})</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Blueprint: Versioned Flask blueprint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">url_prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">url_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/api/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    <span class="n">blueprint</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">import_name</span><span class="p">,</span> <span class="n">url_prefix</span><span class="o">=</span><span class="n">url_prefix</span><span class="p">)</span>
+    
+    <span class="c1"># Register with version manager</span>
+    <span class="n">version_manager</span> <span class="o">=</span> <span class="n">get_api_version_manager</span><span class="p">()</span>
+    <span class="n">version_manager</span><span class="o">.</span><span class="n">register_version</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">blueprint</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">blueprint</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

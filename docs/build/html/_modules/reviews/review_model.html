@@ -1,0 +1,1602 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>reviews.review_model &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">reviews.review_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for reviews.review_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Review Model</span>
+<span class="sd">Handles all database operations for room and service reviews.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psycopg2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">psycopg2.extras</span><span class="w"> </span><span class="kn">import</span> <span class="n">RealDictCursor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">html</span>
+
+
+<div class="viewcode-block" id="connect_to_db">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.connect_to_db">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connect_to_db</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Establish connection to PostgreSQL database.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Creates and returns a connection to the PostgreSQL database used for</span>
+<span class="sd">        storing review data. Uses environment variables if available, otherwise</span>
+<span class="sd">        falls back to default values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        None</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        psycopg2.connection: Database connection object.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises psycopg2.OperationalError if connection fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;db&quot;</span><span class="p">),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;meetingroom&quot;</span><span class="p">),</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_USER&quot;</span><span class="p">,</span> <span class="s2">&quot;admin&quot;</span><span class="p">),</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DB_PASSWORD&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sanitize_input">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.sanitize_input">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sanitize_input</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sanitize user input to prevent XSS and SQL injection.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Escapes HTML characters to prevent XSS attacks and escapes single quotes</span>
+<span class="sd">        to prevent SQL injection. Strips whitespace from the input.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        text (Optional[str]): Input text to sanitize. Can be None.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Optional[str]: Sanitized text with HTML characters escaped and SQL-injection</span>
+<span class="sd">        patterns removed, or None if input is None or empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># Escape HTML characters</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="c1"># Remove potential SQL injection patterns</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>  <span class="c1"># Escape single quotes for SQL</span>
+    <span class="k">return</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_reviews">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_all_reviews">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_reviews</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all reviews with user and room details.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Fetches all reviews from the database, including associated user and room</span>
+<span class="sd">        information. Returns reviews ordered by creation date (newest first).</span>
+<span class="sd">        Includes all review fields: rating, comment, flags, moderation status, etc.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        None</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict]: List of review dictionaries, each containing:</span>
+<span class="sd">            - review_id (int): Unique review identifier</span>
+<span class="sd">            - user_id (int): ID of the user who wrote the review</span>
+<span class="sd">            - room_id (int): ID of the room being reviewed</span>
+<span class="sd">            - rating (int): Rating from 1 to 5</span>
+<span class="sd">            - comment (str): Review comment text</span>
+<span class="sd">            - is_flagged (bool): Whether the review has been flagged</span>
+<span class="sd">            - flag_reason (str): Reason for flagging (if flagged)</span>
+<span class="sd">            - is_moderated (bool): Whether the review has been moderated</span>
+<span class="sd">            - is_hidden (bool): Whether the review is hidden from regular users</span>
+<span class="sd">            - moderated_by (int): ID of moderator who moderated the review</span>
+<span class="sd">            - created_at (datetime): Review creation timestamp</span>
+<span class="sd">            - updated_at (datetime): Last update timestamp</span>
+<span class="sd">            - username (str): Username of the reviewer</span>
+<span class="sd">            - user_name (str): Full name of the reviewer</span>
+<span class="sd">            - room_name (str): Name of the reviewed room</span>
+<span class="sd">            - room_location (str): Location of the reviewed room</span>
+<span class="sd">        </span>
+<span class="sd">        Returns empty list [] if an error occurs or no reviews exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                r.review_id,</span>
+<span class="s2">                r.user_id,</span>
+<span class="s2">                r.room_id,</span>
+<span class="s2">                r.rating,</span>
+<span class="s2">                r.comment,</span>
+<span class="s2">                r.is_flagged,</span>
+<span class="s2">                r.flag_reason,</span>
+<span class="s2">                r.is_moderated,</span>
+<span class="s2">                r.is_hidden,</span>
+<span class="s2">                r.moderated_by,</span>
+<span class="s2">                r.created_at,</span>
+<span class="s2">                r.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                rm.room_name,</span>
+<span class="s2">                rm.room_location</span>
+<span class="s2">            FROM Reviews r</span>
+<span class="s2">            JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">            ORDER BY r.created_at DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching reviews: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">reviews</span></div>
+
+
+
+<div class="viewcode-block" id="get_review_by_id">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_review_by_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_review_by_id</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve a specific review by ID.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Fetches a single review by its unique identifier, including associated</span>
+<span class="sd">        user and room information. Returns all review details.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to retrieve.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: Review dictionary containing the same fields as get_all_reviews(),</span>
+<span class="sd">        or empty dictionary {} if review is not found or an error occurs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">review</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                r.review_id,</span>
+<span class="s2">                r.user_id,</span>
+<span class="s2">                r.room_id,</span>
+<span class="s2">                r.rating,</span>
+<span class="s2">                r.comment,</span>
+<span class="s2">                r.is_flagged,</span>
+<span class="s2">                r.flag_reason,</span>
+<span class="s2">                r.is_moderated,</span>
+<span class="s2">                r.is_hidden,</span>
+<span class="s2">                r.moderated_by,</span>
+<span class="s2">                r.created_at,</span>
+<span class="s2">                r.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                rm.room_name,</span>
+<span class="s2">                rm.room_location</span>
+<span class="s2">            FROM Reviews r</span>
+<span class="s2">            JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">            WHERE r.review_id = </span><span class="si">%s</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">review</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching review: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">review</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">review</span></div>
+
+
+
+<div class="viewcode-block" id="get_reviews_by_room">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_reviews_by_room">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reviews_by_room</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">include_flagged</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all reviews for a specific room.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Fetches all reviews for a given room. By default, excludes flagged and</span>
+<span class="sd">        hidden reviews (for regular users). When include_flagged=True, returns all</span>
+<span class="sd">        reviews including flagged ones (for moderators/admins). Reviews are ordered</span>
+<span class="sd">        by creation date (newest first).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        room_id (int): The unique identifier of the room whose reviews to retrieve.</span>
+<span class="sd">        include_flagged (bool, optional): Whether to include flagged reviews.</span>
+<span class="sd">            Defaults to False. Set to True for moderator/admin views.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict]: List of review dictionaries for the specified room, containing</span>
+<span class="sd">        the same fields as get_all_reviews(). Returns empty list [] if no reviews</span>
+<span class="sd">        exist for the room, if room doesn&#39;t exist, or if an error occurs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">include_flagged</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    r.review_id,</span>
+<span class="s2">                    r.user_id,</span>
+<span class="s2">                    r.room_id,</span>
+<span class="s2">                    r.rating,</span>
+<span class="s2">                    r.comment,</span>
+<span class="s2">                    r.is_flagged,</span>
+<span class="s2">                    r.flag_reason,</span>
+<span class="s2">                    r.is_moderated,</span>
+<span class="s2">                    r.is_hidden,</span>
+<span class="s2">                    r.moderated_by,</span>
+<span class="s2">                    r.created_at,</span>
+<span class="s2">                    r.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    rm.room_name,</span>
+<span class="s2">                    rm.room_location</span>
+<span class="s2">                FROM Reviews r</span>
+<span class="s2">                JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">                WHERE r.room_id = </span><span class="si">%s</span>
+<span class="s2">                ORDER BY r.created_at DESC</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    r.review_id,</span>
+<span class="s2">                    r.user_id,</span>
+<span class="s2">                    r.room_id,</span>
+<span class="s2">                    r.rating,</span>
+<span class="s2">                    r.comment,</span>
+<span class="s2">                    r.is_flagged,</span>
+<span class="s2">                    r.flag_reason,</span>
+<span class="s2">                    r.is_moderated,</span>
+<span class="s2">                    r.is_hidden,</span>
+<span class="s2">                    r.moderated_by,</span>
+<span class="s2">                    r.created_at,</span>
+<span class="s2">                    r.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    rm.room_name,</span>
+<span class="s2">                    rm.room_location</span>
+<span class="s2">                FROM Reviews r</span>
+<span class="s2">                JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">                WHERE r.room_id = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">                AND (r.is_flagged = FALSE OR r.is_flagged IS NULL)</span>
+<span class="s2">                AND (r.is_hidden = FALSE OR r.is_hidden IS NULL)</span>
+<span class="s2">                ORDER BY r.created_at DESC</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+        
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching room reviews: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">reviews</span></div>
+
+
+
+<div class="viewcode-block" id="get_user_reviews">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_user_reviews">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_user_reviews</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all reviews by a specific user.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Fetches all reviews written by a given user, including associated room</span>
+<span class="sd">        information. Returns reviews ordered by creation date (newest first).</span>
+<span class="sd">        Includes all review details.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        user_id (int): The unique identifier of the user whose reviews to retrieve.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict]: List of review dictionaries written by the specified user,</span>
+<span class="sd">        containing the same fields as get_all_reviews(). Returns empty list []</span>
+<span class="sd">        if user has no reviews, if user doesn&#39;t exist, or if an error occurs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                r.review_id,</span>
+<span class="s2">                r.user_id,</span>
+<span class="s2">                r.room_id,</span>
+<span class="s2">                r.rating,</span>
+<span class="s2">                r.comment,</span>
+<span class="s2">                r.is_flagged,</span>
+<span class="s2">                r.flag_reason,</span>
+<span class="s2">                r.is_moderated,</span>
+<span class="s2">                r.is_hidden,</span>
+<span class="s2">                r.moderated_by,</span>
+<span class="s2">                r.created_at,</span>
+<span class="s2">                r.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                rm.room_name,</span>
+<span class="s2">                rm.room_location</span>
+<span class="s2">            FROM Reviews r</span>
+<span class="s2">            JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">            WHERE r.user_id = </span><span class="si">%s</span>
+<span class="s2">            ORDER BY r.created_at DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching user reviews: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">reviews</span></div>
+
+
+
+<div class="viewcode-block" id="get_flagged_reviews">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_flagged_reviews">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_flagged_reviews</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all flagged reviews for moderation.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Fetches all reviews that have been flagged as inappropriate and require</span>
+<span class="sd">        moderation. Used by moderators and admins to review and take action on</span>
+<span class="sd">        flagged content. Reviews are ordered by creation date (newest first).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        None</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Dict]: List of flagged review dictionaries, each containing the same</span>
+<span class="sd">        fields as get_all_reviews(). Only includes reviews where is_flagged=True.</span>
+<span class="sd">        Returns empty list [] if no flagged reviews exist or if an error occurs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                r.review_id,</span>
+<span class="s2">                r.user_id,</span>
+<span class="s2">                r.room_id,</span>
+<span class="s2">                r.rating,</span>
+<span class="s2">                r.comment,</span>
+<span class="s2">                r.is_flagged,</span>
+<span class="s2">                r.flag_reason,</span>
+<span class="s2">                r.is_moderated,</span>
+<span class="s2">                r.is_hidden,</span>
+<span class="s2">                r.moderated_by,</span>
+<span class="s2">                r.created_at,</span>
+<span class="s2">                r.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                rm.room_name,</span>
+<span class="s2">                rm.room_location</span>
+<span class="s2">            FROM Reviews r</span>
+<span class="s2">            JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">            WHERE r.is_flagged = TRUE</span>
+<span class="s2">            ORDER BY r.created_at DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching flagged reviews: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">reviews</span></div>
+
+
+
+<div class="viewcode-block" id="check_user_exists">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.check_user_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_user_exists</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a user exists in the system.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Verifies whether a user with the given ID exists. First attempts to call</span>
+<span class="sd">        the users microservice via circuit breaker pattern. If the service is</span>
+<span class="sd">        unavailable or circuit breaker is open, falls back to a direct database</span>
+<span class="sd">        query. This provides resilience in a microservices architecture.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        user_id (int): The unique identifier of the user to check.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if user exists, False otherwise (including if user doesn&#39;t</span>
+<span class="sd">        exist, service is unavailable, or an error occurs).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to call users service with circuit breaker</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+        <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+        
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.circuit_breaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">,</span> <span class="n">CircuitBreakerOpenError</span>
+        
+        <span class="c1"># Get service URL from environment or use default</span>
+        <span class="n">users_service_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;USERS_SERVICE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;http://users-service:5001&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;users&#39;</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">users_service_url</span><span class="si">}</span><span class="s1">/admin/users/</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">CircuitBreakerOpenError</span><span class="p">:</span>
+            <span class="c1"># Circuit is open, fall back to direct DB query</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Circuit breaker OPEN for users service, falling back to DB query&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Service call failed, fall back to DB</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Users service call failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, falling back to DB query&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Circuit breaker not available, use DB directly</span>
+        <span class="k">pass</span>
+    
+    <span class="c1"># Fallback: Direct database query</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id FROM Users WHERE user_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking user: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="check_room_exists">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.check_room_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_room_exists</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a room exists in the system.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Verifies whether a room with the given ID exists. First attempts to call</span>
+<span class="sd">        the rooms microservice via circuit breaker pattern. If the service is</span>
+<span class="sd">        unavailable or circuit breaker is open, falls back to a direct database</span>
+<span class="sd">        query. This provides resilience in a microservices architecture.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        room_id (int): The unique identifier of the room to check.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if room exists, False otherwise (including if room doesn&#39;t</span>
+<span class="sd">        exist, service is unavailable, or an error occurs).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to call rooms service with circuit breaker</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+        <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+        
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.circuit_breaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">,</span> <span class="n">CircuitBreakerOpenError</span>
+        
+        <span class="c1"># Get service URL from environment or use default</span>
+        <span class="n">rooms_service_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;ROOMS_SERVICE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;http://rooms-service:5000&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># First get room name from DB (we need it for the API call)</span>
+            <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT room_name FROM Rooms WHERE room_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            
+            <span class="n">room_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="c1"># Call rooms service to verify</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;rooms&#39;</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rooms_service_url</span><span class="si">}</span><span class="s1">/api/rooms/</span><span class="si">{</span><span class="n">room_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">CircuitBreakerOpenError</span><span class="p">:</span>
+            <span class="c1"># Circuit is open, use DB result we already have</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Circuit breaker OPEN for rooms service, using DB result&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Service call failed, use DB result</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rooms service call failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, using DB result&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Circuit breaker not available, use DB directly</span>
+        <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># Any other error, fall through to DB query</span>
+        <span class="k">pass</span>
+    
+    <span class="c1"># Fallback: Direct database query</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT room_id FROM Rooms WHERE room_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking room: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="create_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.create_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_review</span><span class="p">(</span><span class="n">review_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new review for a meeting room.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Creates a new review in the database after validating all required fields,</span>
+<span class="sd">        checking that the user and room exist, validating the rating (1-5), and</span>
+<span class="sd">        sanitizing the comment to prevent XSS and SQL injection attacks.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_data (Dict): Dictionary containing review details with keys:</span>
+<span class="sd">            - user_id (int, required): ID of the user submitting the review</span>
+<span class="sd">            - room_id (int, required): ID of the room being reviewed</span>
+<span class="sd">            - rating (int, required): Rating from 1 to 5</span>
+<span class="sd">            - comment (str, optional): Review comment text</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary containing:</span>
+<span class="sd">            - review_id (int): Unique identifier of the created review</span>
+<span class="sd">            - user_id (int): ID of the reviewer</span>
+<span class="sd">            - room_id (int): ID of the reviewed room</span>
+<span class="sd">            - rating (int): Rating value</span>
+<span class="sd">            - comment (str): Sanitized comment text</span>
+<span class="sd">            - is_flagged (bool): Flag status (defaults to False)</span>
+<span class="sd">            - is_moderated (bool): Moderation status (defaults to False)</span>
+<span class="sd">            - is_hidden (bool): Hidden status (defaults to False)</span>
+<span class="sd">            - created_at (datetime): Creation timestamp</span>
+<span class="sd">            - updated_at (datetime): Update timestamp</span>
+<span class="sd">            - username (str): Reviewer&#39;s username</span>
+<span class="sd">            - user_name (str): Reviewer&#39;s full name</span>
+<span class="sd">            - room_name (str): Room name</span>
+<span class="sd">            - room_location (str): Room location</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Missing required fields: user_id, room_id, rating&quot;</span>
+<span class="sd">            - &quot;Rating must be between 1 and 5&quot;</span>
+<span class="sd">            - &quot;Invalid rating value&quot;</span>
+<span class="sd">            - &quot;User does not exist&quot;</span>
+<span class="sd">            - &quot;Room does not exist&quot;</span>
+<span class="sd">            - &quot;Failed to create review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Validate required fields</span>
+        <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">,</span> <span class="s1">&#39;room_id&#39;</span><span class="p">,</span> <span class="s1">&#39;rating&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">review_data</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Missing required fields: user_id, room_id, rating&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">review_data</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+        <span class="n">room_id</span> <span class="o">=</span> <span class="n">review_data</span><span class="p">[</span><span class="s1">&#39;room_id&#39;</span><span class="p">]</span>
+        <span class="n">rating</span> <span class="o">=</span> <span class="n">review_data</span><span class="p">[</span><span class="s1">&#39;rating&#39;</span><span class="p">]</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="n">review_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Validate rating</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rating</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rating</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rating</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">rating</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Rating must be between 1 and 5&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid rating value&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Validate user and room exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_user_exists</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User does not exist&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_room_exists</span><span class="p">(</span><span class="n">room_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Room does not exist&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Sanitize comment</span>
+        <span class="n">sanitized_comment</span> <span class="o">=</span> <span class="n">sanitize_input</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span> <span class="k">if</span> <span class="n">comment</span> <span class="k">else</span> <span class="kc">None</span>
+        
+        <span class="c1"># Try to encrypt sensitive data if encryption is available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+            <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.encryption</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_encryption</span>
+            <span class="n">encryption</span> <span class="o">=</span> <span class="n">get_encryption</span><span class="p">()</span>
+            <span class="c1"># Encrypt comment if it contains sensitive info (simplified - in production, encrypt all comments)</span>
+            <span class="c1"># For now, we&#39;ll just store sanitized comment</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="c1"># Encryption not available, continue without it</span>
+            <span class="k">pass</span>
+        
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            INSERT INTO Reviews (user_id, room_id, rating, comment)</span>
+<span class="s2">            VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)</span>
+<span class="s2">            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, is_moderated, is_hidden, created_at, updated_at</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">rating</span><span class="p">,</span> <span class="n">sanitized_comment</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1"># Fetch additional details</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    r.review_id,</span>
+<span class="s2">                    r.user_id,</span>
+<span class="s2">                    r.room_id,</span>
+<span class="s2">                    r.rating,</span>
+<span class="s2">                    r.comment,</span>
+<span class="s2">                    r.is_flagged,</span>
+<span class="s2">                    r.flag_reason,</span>
+<span class="s2">                    r.is_moderated,</span>
+<span class="s2">                    r.is_hidden,</span>
+<span class="s2">                    r.moderated_by,</span>
+<span class="s2">                    r.created_at,</span>
+<span class="s2">                    r.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    rm.room_name,</span>
+<span class="s2">                    rm.room_location</span>
+<span class="s2">                FROM Reviews r</span>
+<span class="s2">                JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">                WHERE r.review_id = </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;review_id&#39;</span><span class="p">],))</span>
+            <span class="n">full_row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">full_row</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">full_row</span><span class="p">)</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to create review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="update_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.update_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">review_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_admin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">is_moderator</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update an existing review.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Updates one or more fields of an existing review. Validates authorization</span>
+<span class="sd">        (users can only update their own reviews unless they are admin/moderator),</span>
+<span class="sd">        validates rating if provided, and sanitizes comment text. Updates the</span>
+<span class="sd">        updated_at timestamp automatically.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to update.</span>
+<span class="sd">        review_data (Dict): Dictionary containing fields to update with keys:</span>
+<span class="sd">            - rating (int, optional): New rating value (1-5)</span>
+<span class="sd">            - comment (str, optional): New comment text</span>
+<span class="sd">        At least one field must be provided.</span>
+<span class="sd">        user_id (Optional[int]): ID of the user making the request (for authorization).</span>
+<span class="sd">            Required for non-admin/moderator users.</span>
+<span class="sd">        is_admin (bool): Whether the user is an admin. Defaults to False.</span>
+<span class="sd">        is_moderator (bool): Whether the user is a moderator. Defaults to False.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary containing the updated review with</span>
+<span class="sd">        all fields (same structure as get_review_by_id()).</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Unauthorized: You can only update your own reviews&quot;</span>
+<span class="sd">            - &quot;Rating must be between 1 and 5&quot;</span>
+<span class="sd">            - &quot;Invalid rating value&quot;</span>
+<span class="sd">            - &quot;No fields to update&quot;</span>
+<span class="sd">            - &quot;Failed to update review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists and user has permission</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">existing_user_id</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Authorization check: users can update their own reviews, admins/moderators can update any</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_admin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_moderator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">existing_user_id</span> <span class="o">!=</span> <span class="n">user_id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Unauthorized: You can only update your own reviews&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Get updated values</span>
+        <span class="n">rating</span> <span class="o">=</span> <span class="n">review_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rating&#39;</span><span class="p">)</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="n">review_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Validate rating if provided</span>
+        <span class="k">if</span> <span class="n">rating</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rating</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rating</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">rating</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">rating</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Rating must be between 1 and 5&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid rating value&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Sanitize comment if provided</span>
+        <span class="n">sanitized_comment</span> <span class="o">=</span> <span class="n">sanitize_input</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span> <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        
+        <span class="c1"># Build update query dynamically</span>
+        <span class="n">update_fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">if</span> <span class="n">rating</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">update_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;rating = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rating</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">update_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;comment = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sanitized_comment</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">update_fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;No fields to update&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">update_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;updated_at = CURRENT_TIMESTAMP&quot;</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">review_id</span><span class="p">)</span>
+        
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">update_fields</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">            WHERE review_id = %s</span>
+<span class="s2">            RETURNING review_id, user_id, room_id, rating, comment, is_flagged, flag_reason, is_moderated, is_hidden, moderated_by, created_at, updated_at</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1"># Fetch additional details</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    r.review_id,</span>
+<span class="s2">                    r.user_id,</span>
+<span class="s2">                    r.room_id,</span>
+<span class="s2">                    r.rating,</span>
+<span class="s2">                    r.comment,</span>
+<span class="s2">                    r.is_flagged,</span>
+<span class="s2">                    r.flag_reason,</span>
+<span class="s2">                    r.is_moderated,</span>
+<span class="s2">                    r.moderated_by,</span>
+<span class="s2">                    r.created_at,</span>
+<span class="s2">                    r.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    rm.room_name,</span>
+<span class="s2">                    rm.room_location</span>
+<span class="s2">                FROM Reviews r</span>
+<span class="s2">                JOIN Users u ON r.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms rm ON r.room_id = rm.room_id</span>
+<span class="s2">                WHERE r.review_id = </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+            <span class="n">full_row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">full_row</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">full_row</span><span class="p">)</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to update review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="delete_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.delete_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_admin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">is_moderator</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete a review from the database.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Permanently deletes a review from the database. Validates authorization</span>
+<span class="sd">        (users can only delete their own reviews unless they are admin/moderator).</span>
+<span class="sd">        This is a hard delete - the review is completely removed from the database.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to delete.</span>
+<span class="sd">        user_id (Optional[int]): ID of the user making the request (for authorization).</span>
+<span class="sd">            Required for non-admin/moderator users.</span>
+<span class="sd">        is_admin (bool): Whether the user is an admin. Defaults to False.</span>
+<span class="sd">        is_moderator (bool): Whether the user is a moderator. Defaults to False.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review deleted successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the deleted review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Unauthorized: You can only delete your own reviews&quot;</span>
+<span class="sd">            - &quot;Failed to delete review&quot;</span>
+<span class="sd">            - &quot;Failed to delete review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists and user has permission</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">existing_user_id</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Authorization check: users can delete their own reviews, admins/moderators can delete any</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_admin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_moderator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">existing_user_id</span> <span class="o">!=</span> <span class="n">user_id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Unauthorized: You can only delete your own reviews&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Delete review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DELETE FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2"> RETURNING review_id&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">deleted</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review deleted successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to delete review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to delete review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="flag_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.flag_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">flag_reason</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Flag a review as inappropriate for moderation.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Marks a review as flagged, indicating it may contain inappropriate content</span>
+<span class="sd">        and requires moderation. The flag reason is sanitized to prevent XSS attacks.</span>
+<span class="sd">        Once flagged, the review is hidden from regular users but visible to moderators</span>
+<span class="sd">        and admins. A review cannot be flagged if it is already flagged.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to flag.</span>
+<span class="sd">        flag_reason (Optional[str]): Reason for flagging the review. Defaults to</span>
+<span class="sd">            &quot;Flagged by user&quot; if not provided. Will be sanitized before storage.</span>
+<span class="sd">        user_id (Optional[int]): ID of the user flagging the review. Currently</span>
+<span class="sd">            stored but not used in the flagging logic.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review flagged successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the flagged review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Review is already flagged&quot;</span>
+<span class="sd">            - &quot;Failed to flag review&quot;</span>
+<span class="sd">            - &quot;Failed to flag review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT is_flagged FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;is_flagged&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review is already flagged&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Sanitize flag reason</span>
+        <span class="n">sanitized_reason</span> <span class="o">=</span> <span class="n">sanitize_input</span><span class="p">(</span><span class="n">flag_reason</span><span class="p">)</span> <span class="k">if</span> <span class="n">flag_reason</span> <span class="k">else</span> <span class="s2">&quot;Flagged by user&quot;</span>
+        
+        <span class="c1"># Flag review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_flagged = TRUE,</span>
+<span class="s2">                flag_reason = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_flagged, flag_reason</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">sanitized_reason</span><span class="p">,</span> <span class="n">review_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review flagged successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to flag review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to flag review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="unflag_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.unflag_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unflag_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">moderator_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unflag a review (moderator/admin only).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Removes the flag from a review, indicating it has been reviewed and approved</span>
+<span class="sd">        by a moderator or admin. Marks the review as moderated and records the</span>
+<span class="sd">        moderator who performed the action. Once unflagged, the review becomes</span>
+<span class="sd">        visible to regular users again. A review cannot be unflagged if it is not</span>
+<span class="sd">        currently flagged.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to unflag.</span>
+<span class="sd">        moderator_id (Optional[int]): ID of the moderator or admin performing the</span>
+<span class="sd">            unflag action. Stored in moderated_by field.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review unflagged successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the unflagged review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Review is not flagged&quot;</span>
+<span class="sd">            - &quot;Failed to unflag review&quot;</span>
+<span class="sd">            - &quot;Failed to unflag review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT is_flagged FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;is_flagged&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review is not flagged&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Unflag review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_flagged = FALSE,</span>
+<span class="s2">                flag_reason = NULL,</span>
+<span class="s2">                is_moderated = TRUE,</span>
+<span class="s2">                moderated_by = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_flagged, is_moderated</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">moderator_id</span><span class="p">,</span> <span class="n">review_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review unflagged successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to unflag review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to unflag review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="remove_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.remove_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">moderator_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a review (moderator/admin only - soft delete).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Soft deletes a review by marking it as moderated, flagged, and setting</span>
+<span class="sd">        the flag reason to &quot;Removed by moderator&quot;. This hides the review from</span>
+<span class="sd">        regular users while keeping it in the database for audit purposes.</span>
+<span class="sd">        Records the moderator who performed the removal action.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to remove.</span>
+<span class="sd">        moderator_id (Optional[int]): ID of the moderator or admin performing the</span>
+<span class="sd">            removal action. Stored in moderated_by field.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review removed by moderator&quot;</span>
+<span class="sd">            - review_id (int): ID of the removed review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Failed to remove review&quot;</span>
+<span class="sd">            - &quot;Failed to remove review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT review_id FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Mark as moderated and keep flagged</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_moderated = TRUE,</span>
+<span class="s2">                moderated_by = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                is_flagged = TRUE,</span>
+<span class="s2">                flag_reason = &#39;Removed by moderator&#39;,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_moderated</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">moderator_id</span><span class="p">,</span> <span class="n">review_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review removed by moderator&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to remove review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to remove review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="restore_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.restore_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">restore_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">admin_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Restore a removed/hidden review (Admin only).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Restores a previously removed or hidden review by clearing all moderation</span>
+<span class="sd">        flags (is_moderated, is_hidden, is_flagged) and resetting related fields</span>
+<span class="sd">        (flag_reason, moderated_by). This makes the review visible to all users</span>
+<span class="sd">        again and removes all moderation markers.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to restore.</span>
+<span class="sd">        admin_id (Optional[int]): ID of the admin performing the restore action.</span>
+<span class="sd">            Currently not stored but may be used for audit logging.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review restored successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the restored review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Failed to restore review&quot;</span>
+<span class="sd">            - &quot;Failed to restore review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT is_moderated, is_hidden FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">existing</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
+        
+        <span class="c1"># Restore review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_moderated = FALSE,</span>
+<span class="s2">                is_hidden = FALSE,</span>
+<span class="s2">                is_flagged = FALSE,</span>
+<span class="s2">                flag_reason = NULL,</span>
+<span class="s2">                moderated_by = NULL,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_moderated, is_hidden, is_flagged</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review restored successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to restore review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to restore review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="hide_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.hide_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hide_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">moderator_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hide a review from regular users (Moderator/Admin only).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Hides a review from regular users while keeping it visible to moderators</span>
+<span class="sd">        and admins. Marks the review as moderated and records the moderator who</span>
+<span class="sd">        performed the action. Hidden reviews are excluded from public listings</span>
+<span class="sd">        but remain in the database. A review cannot be hidden if it is already hidden.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to hide.</span>
+<span class="sd">        moderator_id (Optional[int]): ID of the moderator or admin performing the</span>
+<span class="sd">            hide action. Stored in moderated_by field.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review hidden successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the hidden review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Review is already hidden&quot;</span>
+<span class="sd">            - &quot;Failed to hide review&quot;</span>
+<span class="sd">            - &quot;Failed to hide review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT is_hidden FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;is_hidden&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review is already hidden&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Hide review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_hidden = TRUE,</span>
+<span class="s2">                is_moderated = TRUE,</span>
+<span class="s2">                moderated_by = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_hidden</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">moderator_id</span><span class="p">,</span> <span class="n">review_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review hidden successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to hide review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to hide review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="show_review">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.show_review">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">show_review</span><span class="p">(</span><span class="n">review_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">moderator_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show a hidden review (Moderator/Admin only).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Makes a previously hidden review visible to regular users again by clearing</span>
+<span class="sd">        the is_hidden flag. Records the moderator who performed the action.</span>
+<span class="sd">        A review cannot be shown if it is not currently hidden.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        review_id (int): The unique identifier of the review to show.</span>
+<span class="sd">        moderator_id (Optional[int]): ID of the moderator or admin performing the</span>
+<span class="sd">            show action. Stored in moderated_by field.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: On success, returns dictionary with:</span>
+<span class="sd">            - message (str): &quot;Review shown successfully&quot;</span>
+<span class="sd">            - review_id (int): ID of the shown review</span>
+<span class="sd">            - status (str): &quot;success&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">            - status (str): &quot;error&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Possible errors:</span>
+<span class="sd">            - &quot;Review not found&quot;</span>
+<span class="sd">            - &quot;Review is not hidden&quot;</span>
+<span class="sd">            - &quot;Failed to show review&quot;</span>
+<span class="sd">            - &quot;Failed to show review: &lt;error details&gt;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if review exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT is_hidden FROM Reviews WHERE review_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">review_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;is_hidden&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Review is not hidden&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Show review</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Reviews </span>
+<span class="s2">            SET is_hidden = FALSE,</span>
+<span class="s2">                moderated_by = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE review_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING review_id, is_hidden</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">moderator_id</span><span class="p">,</span> <span class="n">review_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Review shown successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;review_id&quot;</span><span class="p">:</span> <span class="n">review_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to show review&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to show review: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="get_review_reports">
+<a class="viewcode-back" href="../../reviews.html#reviews.review_model.get_review_reports">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_review_reports</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get review moderation reports and statistics for moderators.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Generates comprehensive statistics and reports about reviews in the system,</span>
+<span class="sd">        including totals, flagged reviews, hidden reviews, moderated reviews, average</span>
+<span class="sd">        ratings, rating distribution, and recent flagged reviews. Used by moderators</span>
+<span class="sd">        and admins to monitor review activity and moderation workload.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        None</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: Dictionary containing review statistics with keys:</span>
+<span class="sd">            - total_reviews (int): Total number of reviews in the system</span>
+<span class="sd">            - flagged_reviews (int): Number of reviews that are currently flagged</span>
+<span class="sd">            - hidden_reviews (int): Number of reviews that are currently hidden</span>
+<span class="sd">            - moderated_reviews (int): Number of reviews that have been moderated</span>
+<span class="sd">            - average_rating (float): Average rating across all non-hidden reviews</span>
+<span class="sd">            - rating_distribution (List[Dict]): List of dictionaries with rating</span>
+<span class="sd">                and count, showing distribution of ratings (1-5)</span>
+<span class="sd">            - recent_flagged (List[Dict]): List of the 10 most recently flagged</span>
+<span class="sd">                reviews with their details</span>
+<span class="sd">        </span>
+<span class="sd">        On error, returns dictionary with:</span>
+<span class="sd">            - error (str): Error message describing what went wrong</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reports</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Get total reviews</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT COUNT(*) as total FROM Reviews&quot;</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get flagged reviews count</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT COUNT(*) as flagged FROM Reviews WHERE is_flagged = TRUE&quot;</span><span class="p">)</span>
+        <span class="n">flagged</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="s1">&#39;flagged&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get hidden reviews count</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT COUNT(*) as hidden FROM Reviews WHERE is_hidden = TRUE&quot;</span><span class="p">)</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="s1">&#39;hidden&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get moderated reviews count</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT COUNT(*) as moderated FROM Reviews WHERE is_moderated = TRUE&quot;</span><span class="p">)</span>
+        <span class="n">moderated</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="s1">&#39;moderated&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get average rating</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT AVG(rating) as avg_rating FROM Reviews WHERE is_hidden = FALSE&quot;</span><span class="p">)</span>
+        <span class="n">avg_rating</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="s1">&#39;avg_rating&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Get reviews by rating</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT rating, COUNT(*) as count </span>
+<span class="s2">            FROM Reviews </span>
+<span class="s2">            WHERE is_hidden = FALSE</span>
+<span class="s2">            GROUP BY rating </span>
+<span class="s2">            ORDER BY rating DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">rating_distribution</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+        
+        <span class="c1"># Get recent flagged reviews (last 10)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT review_id, user_id, room_id, rating, is_flagged, flag_reason, created_at</span>
+<span class="s2">            FROM Reviews</span>
+<span class="s2">            WHERE is_flagged = TRUE</span>
+<span class="s2">            ORDER BY created_at DESC</span>
+<span class="s2">            LIMIT 10</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">recent_flagged</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+        
+        <span class="n">reports</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total_reviews&quot;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+            <span class="s2">&quot;flagged_reviews&quot;</span><span class="p">:</span> <span class="n">flagged</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_reviews&quot;</span><span class="p">:</span> <span class="n">hidden</span><span class="p">,</span>
+            <span class="s2">&quot;moderated_reviews&quot;</span><span class="p">:</span> <span class="n">moderated</span><span class="p">,</span>
+            <span class="s2">&quot;average_rating&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">avg_rating</span><span class="p">)</span> <span class="k">if</span> <span class="n">avg_rating</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;rating_distribution&quot;</span><span class="p">:</span> <span class="n">rating_distribution</span><span class="p">,</span>
+            <span class="s2">&quot;recent_flagged&quot;</span><span class="p">:</span> <span class="n">recent_flagged</span>
+        <span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error generating reports: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">reports</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to generate reports: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">reports</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,949 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>reviews package &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="shared_utils package" href="shared_utils.html" />
+    <link rel="prev" title="bookings package" href="bookings.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bookings.html">bookings package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">reviews package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-app-module">reviews.app module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-profiler-module">reviews.profiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-profiler-lineprofiler-module">reviews.profiler_lineprofiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-profiler-memoryprofiler-module">reviews.profiler_memoryprofiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-reviews.review_model">reviews.review_model module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.check_room_exists"><code class="docutils literal notranslate"><span class="pre">check_room_exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.check_user_exists"><code class="docutils literal notranslate"><span class="pre">check_user_exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.connect_to_db"><code class="docutils literal notranslate"><span class="pre">connect_to_db()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.create_review"><code class="docutils literal notranslate"><span class="pre">create_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.delete_review"><code class="docutils literal notranslate"><span class="pre">delete_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.flag_review"><code class="docutils literal notranslate"><span class="pre">flag_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_all_reviews"><code class="docutils literal notranslate"><span class="pre">get_all_reviews()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_flagged_reviews"><code class="docutils literal notranslate"><span class="pre">get_flagged_reviews()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_review_by_id"><code class="docutils literal notranslate"><span class="pre">get_review_by_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_review_reports"><code class="docutils literal notranslate"><span class="pre">get_review_reports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_reviews_by_room"><code class="docutils literal notranslate"><span class="pre">get_reviews_by_room()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.get_user_reviews"><code class="docutils literal notranslate"><span class="pre">get_user_reviews()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.hide_review"><code class="docutils literal notranslate"><span class="pre">hide_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.remove_review"><code class="docutils literal notranslate"><span class="pre">remove_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.restore_review"><code class="docutils literal notranslate"><span class="pre">restore_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.sanitize_input"><code class="docutils literal notranslate"><span class="pre">sanitize_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.show_review"><code class="docutils literal notranslate"><span class="pre">show_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.unflag_review"><code class="docutils literal notranslate"><span class="pre">unflag_review()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reviews.review_model.update_review"><code class="docutils literal notranslate"><span class="pre">update_review()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-review-routes-module">reviews.review_routes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-reviews">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="shared_utils.html">shared_utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bookings.html">bookings package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">reviews package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reviews-app-module">reviews.app module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reviews-profiler-module">reviews.profiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reviews-profiler-lineprofiler-module">reviews.profiler_lineprofiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reviews-profiler-memoryprofiler-module">reviews.profiler_memoryprofiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reviews.review_model">reviews.review_model module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.check_room_exists"><code class="docutils literal notranslate"><span class="pre">check_room_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.check_user_exists"><code class="docutils literal notranslate"><span class="pre">check_user_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.connect_to_db"><code class="docutils literal notranslate"><span class="pre">connect_to_db()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.create_review"><code class="docutils literal notranslate"><span class="pre">create_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.delete_review"><code class="docutils literal notranslate"><span class="pre">delete_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.flag_review"><code class="docutils literal notranslate"><span class="pre">flag_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_all_reviews"><code class="docutils literal notranslate"><span class="pre">get_all_reviews()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_flagged_reviews"><code class="docutils literal notranslate"><span class="pre">get_flagged_reviews()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_review_by_id"><code class="docutils literal notranslate"><span class="pre">get_review_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_review_reports"><code class="docutils literal notranslate"><span class="pre">get_review_reports()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_reviews_by_room"><code class="docutils literal notranslate"><span class="pre">get_reviews_by_room()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.get_user_reviews"><code class="docutils literal notranslate"><span class="pre">get_user_reviews()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.hide_review"><code class="docutils literal notranslate"><span class="pre">hide_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.remove_review"><code class="docutils literal notranslate"><span class="pre">remove_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.restore_review"><code class="docutils literal notranslate"><span class="pre">restore_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.sanitize_input"><code class="docutils literal notranslate"><span class="pre">sanitize_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.show_review"><code class="docutils literal notranslate"><span class="pre">show_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.unflag_review"><code class="docutils literal notranslate"><span class="pre">unflag_review()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reviews.review_model.update_review"><code class="docutils literal notranslate"><span class="pre">update_review()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reviews-review-routes-module">reviews.review_routes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-reviews">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shared_utils.html">shared_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a></li>
+      <li class="breadcrumb-item active">reviews package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reviews.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reviews-package">
+<h1>reviews package<a class="headerlink" href="#reviews-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="reviews-app-module">
+<h2>reviews.app module<a class="headerlink" href="#reviews-app-module" title="Link to this heading"></a></h2>
+</section>
+<section id="reviews-profiler-module">
+<h2>reviews.profiler module<a class="headerlink" href="#reviews-profiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="reviews-profiler-lineprofiler-module">
+<h2>reviews.profiler_lineprofiler module<a class="headerlink" href="#reviews-profiler-lineprofiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="reviews-profiler-memoryprofiler-module">
+<h2>reviews.profiler_memoryprofiler module<a class="headerlink" href="#reviews-profiler-memoryprofiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-reviews.review_model">
+<span id="reviews-review-model-module"></span><h2>reviews.review_model module<a class="headerlink" href="#module-reviews.review_model" title="Link to this heading"></a></h2>
+<p>Review Model
+Handles all database operations for room and service reviews.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.check_room_exists">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">check_room_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#check_room_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.check_room_exists" title="Link to this definition"></a></dt>
+<dd><p>Check if a room exists in the system.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Verifies whether a room with the given ID exists. First attempts to call
+the rooms microservice via circuit breaker pattern. If the service is
+unavailable or circuit breaker is open, falls back to a direct database
+query. This provides resilience in a microservices architecture.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>room_id</strong> (<em>int</em>) – The unique identifier of the room to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if room exists, False otherwise (including if room doesn’t
+exist, service is unavailable, or an error occurs).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.check_user_exists">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">check_user_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#check_user_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.check_user_exists" title="Link to this definition"></a></dt>
+<dd><p>Check if a user exists in the system.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Verifies whether a user with the given ID exists. First attempts to call
+the users microservice via circuit breaker pattern. If the service is
+unavailable or circuit breaker is open, falls back to a direct database
+query. This provides resilience in a microservices architecture.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – The unique identifier of the user to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if user exists, False otherwise (including if user doesn’t
+exist, service is unavailable, or an error occurs).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.connect_to_db">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">connect_to_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/reviews/review_model.html#connect_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.connect_to_db" title="Link to this definition"></a></dt>
+<dd><p>Establish connection to PostgreSQL database.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Creates and returns a connection to the PostgreSQL database used for
+storing review data. Uses environment variables if available, otherwise
+falls back to default values.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Database connection object.</p>
+<p>Raises psycopg2.OperationalError if connection fails.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>psycopg2.connection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.create_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">create_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#create_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.create_review" title="Link to this definition"></a></dt>
+<dd><p>Create a new review for a meeting room.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Creates a new review in the database after validating all required fields,
+checking that the user and room exist, validating the rating (1-5), and
+sanitizing the comment to prevent XSS and SQL injection attacks.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>review_data</strong> (<em>Dict</em>) – Dictionary containing review details with keys:
+- user_id (int, required): ID of the user submitting the review
+- room_id (int, required): ID of the room being reviewed
+- rating (int, required): Rating from 1 to 5
+- comment (str, optional): Review comment text</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary containing:</dt><dd><ul class="simple">
+<li><p>review_id (int): Unique identifier of the created review</p></li>
+<li><p>user_id (int): ID of the reviewer</p></li>
+<li><p>room_id (int): ID of the reviewed room</p></li>
+<li><p>rating (int): Rating value</p></li>
+<li><p>comment (str): Sanitized comment text</p></li>
+<li><p>is_flagged (bool): Flag status (defaults to False)</p></li>
+<li><p>is_moderated (bool): Moderation status (defaults to False)</p></li>
+<li><p>is_hidden (bool): Hidden status (defaults to False)</p></li>
+<li><p>created_at (datetime): Creation timestamp</p></li>
+<li><p>updated_at (datetime): Update timestamp</p></li>
+<li><p>username (str): Reviewer’s username</p></li>
+<li><p>user_name (str): Reviewer’s full name</p></li>
+<li><p>room_name (str): Room name</p></li>
+<li><p>room_location (str): Room location</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Missing required fields: user_id, room_id, rating”</p></li>
+<li><p>”Rating must be between 1 and 5”</p></li>
+<li><p>”Invalid rating value”</p></li>
+<li><p>”User does not exist”</p></li>
+<li><p>”Room does not exist”</p></li>
+<li><p>”Failed to create review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.delete_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">delete_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#delete_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.delete_review" title="Link to this definition"></a></dt>
+<dd><p>Delete a review from the database.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Permanently deletes a review from the database. Validates authorization
+(users can only delete their own reviews unless they are admin/moderator).
+This is a hard delete - the review is completely removed from the database.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to delete.</p></li>
+<li><p><strong>user_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the user making the request (for authorization).
+Required for non-admin/moderator users.</p></li>
+<li><p><strong>is_admin</strong> (<em>bool</em>) – Whether the user is an admin. Defaults to False.</p></li>
+<li><p><strong>is_moderator</strong> (<em>bool</em>) – Whether the user is a moderator. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review deleted successfully”</p></li>
+<li><p>review_id (int): ID of the deleted review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Unauthorized: You can only delete your own reviews”</p></li>
+<li><p>”Failed to delete review”</p></li>
+<li><p>”Failed to delete review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.flag_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">flag_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_reason</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#flag_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.flag_review" title="Link to this definition"></a></dt>
+<dd><p>Flag a review as inappropriate for moderation.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Marks a review as flagged, indicating it may contain inappropriate content
+and requires moderation. The flag reason is sanitized to prevent XSS attacks.
+Once flagged, the review is hidden from regular users but visible to moderators
+and admins. A review cannot be flagged if it is already flagged.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to flag.</p></li>
+<li><p><strong>flag_reason</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Reason for flagging the review. Defaults to
+“Flagged by user” if not provided. Will be sanitized before storage.</p></li>
+<li><p><strong>user_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the user flagging the review. Currently
+stored but not used in the flagging logic.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review flagged successfully”</p></li>
+<li><p>review_id (int): ID of the flagged review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Review is already flagged”</p></li>
+<li><p>”Failed to flag review”</p></li>
+<li><p>”Failed to flag review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_all_reviews">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_all_reviews</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_all_reviews"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_all_reviews" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all reviews with user and room details.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Fetches all reviews from the database, including associated user and room
+information. Returns reviews ordered by creation date (newest first).
+Includes all review fields: rating, comment, flags, moderation status, etc.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>List of review dictionaries, each containing:</dt><dd><ul class="simple">
+<li><p>review_id (int): Unique review identifier</p></li>
+<li><p>user_id (int): ID of the user who wrote the review</p></li>
+<li><p>room_id (int): ID of the room being reviewed</p></li>
+<li><p>rating (int): Rating from 1 to 5</p></li>
+<li><p>comment (str): Review comment text</p></li>
+<li><p>is_flagged (bool): Whether the review has been flagged</p></li>
+<li><p>flag_reason (str): Reason for flagging (if flagged)</p></li>
+<li><p>is_moderated (bool): Whether the review has been moderated</p></li>
+<li><p>is_hidden (bool): Whether the review is hidden from regular users</p></li>
+<li><p>moderated_by (int): ID of moderator who moderated the review</p></li>
+<li><p>created_at (datetime): Review creation timestamp</p></li>
+<li><p>updated_at (datetime): Last update timestamp</p></li>
+<li><p>username (str): Username of the reviewer</p></li>
+<li><p>user_name (str): Full name of the reviewer</p></li>
+<li><p>room_name (str): Name of the reviewed room</p></li>
+<li><p>room_location (str): Location of the reviewed room</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns empty list [] if an error occurs or no reviews exist.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_flagged_reviews">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_flagged_reviews</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_flagged_reviews"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_flagged_reviews" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all flagged reviews for moderation.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Fetches all reviews that have been flagged as inappropriate and require
+moderation. Used by moderators and admins to review and take action on
+flagged content. Reviews are ordered by creation date (newest first).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of flagged review dictionaries, each containing the same
+fields as get_all_reviews(). Only includes reviews where is_flagged=True.
+Returns empty list [] if no flagged reviews exist or if an error occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_review_by_id">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_review_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_review_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_review_by_id" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a specific review by ID.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Fetches a single review by its unique identifier, including associated
+user and room information. Returns all review details.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Review dictionary containing the same fields as get_all_reviews(),
+or empty dictionary {} if review is not found or an error occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_review_reports">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_review_reports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_review_reports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_review_reports" title="Link to this definition"></a></dt>
+<dd><p>Get review moderation reports and statistics for moderators.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Generates comprehensive statistics and reports about reviews in the system,
+including totals, flagged reviews, hidden reviews, moderated reviews, average
+ratings, rating distribution, and recent flagged reviews. Used by moderators
+and admins to monitor review activity and moderation workload.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary containing review statistics with keys:</dt><dd><ul class="simple">
+<li><p>total_reviews (int): Total number of reviews in the system</p></li>
+<li><p>flagged_reviews (int): Number of reviews that are currently flagged</p></li>
+<li><p>hidden_reviews (int): Number of reviews that are currently hidden</p></li>
+<li><p>moderated_reviews (int): Number of reviews that have been moderated</p></li>
+<li><p>average_rating (float): Average rating across all non-hidden reviews</p></li>
+<li><dl class="simple">
+<dt>rating_distribution (List[Dict]): List of dictionaries with rating</dt><dd><p>and count, showing distribution of ratings (1-5)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>recent_flagged (List[Dict]): List of the 10 most recently flagged</dt><dd><p>reviews with their details</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_reviews_by_room">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_reviews_by_room</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_flagged</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_reviews_by_room"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_reviews_by_room" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all reviews for a specific room.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Fetches all reviews for a given room. By default, excludes flagged and
+hidden reviews (for regular users). When include_flagged=True, returns all
+reviews including flagged ones (for moderators/admins). Reviews are ordered
+by creation date (newest first).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>room_id</strong> (<em>int</em>) – The unique identifier of the room whose reviews to retrieve.</p></li>
+<li><p><strong>include_flagged</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include flagged reviews.
+Defaults to False. Set to True for moderator/admin views.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of review dictionaries for the specified room, containing
+the same fields as get_all_reviews(). Returns empty list [] if no reviews
+exist for the room, if room doesn’t exist, or if an error occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.get_user_reviews">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">get_user_reviews</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#get_user_reviews"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.get_user_reviews" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all reviews by a specific user.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Fetches all reviews written by a given user, including associated room
+information. Returns reviews ordered by creation date (newest first).
+Includes all review details.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – The unique identifier of the user whose reviews to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of review dictionaries written by the specified user,
+containing the same fields as get_all_reviews(). Returns empty list []
+if user has no reviews, if user doesn’t exist, or if an error occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.hide_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">hide_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#hide_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.hide_review" title="Link to this definition"></a></dt>
+<dd><p>Hide a review from regular users (Moderator/Admin only).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Hides a review from regular users while keeping it visible to moderators
+and admins. Marks the review as moderated and records the moderator who
+performed the action. Hidden reviews are excluded from public listings
+but remain in the database. A review cannot be hidden if it is already hidden.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to hide.</p></li>
+<li><p><strong>moderator_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the moderator or admin performing the
+hide action. Stored in moderated_by field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review hidden successfully”</p></li>
+<li><p>review_id (int): ID of the hidden review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Review is already hidden”</p></li>
+<li><p>”Failed to hide review”</p></li>
+<li><p>”Failed to hide review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.remove_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">remove_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#remove_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.remove_review" title="Link to this definition"></a></dt>
+<dd><p>Remove a review (moderator/admin only - soft delete).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Soft deletes a review by marking it as moderated, flagged, and setting
+the flag reason to “Removed by moderator”. This hides the review from
+regular users while keeping it in the database for audit purposes.
+Records the moderator who performed the removal action.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to remove.</p></li>
+<li><p><strong>moderator_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the moderator or admin performing the
+removal action. Stored in moderated_by field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review removed by moderator”</p></li>
+<li><p>review_id (int): ID of the removed review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Failed to remove review”</p></li>
+<li><p>”Failed to remove review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.restore_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">restore_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#restore_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.restore_review" title="Link to this definition"></a></dt>
+<dd><p>Restore a removed/hidden review (Admin only).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Restores a previously removed or hidden review by clearing all moderation
+flags (is_moderated, is_hidden, is_flagged) and resetting related fields
+(flag_reason, moderated_by). This makes the review visible to all users
+again and removes all moderation markers.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to restore.</p></li>
+<li><p><strong>admin_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the admin performing the restore action.
+Currently not stored but may be used for audit logging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review restored successfully”</p></li>
+<li><p>review_id (int): ID of the restored review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Failed to restore review”</p></li>
+<li><p>”Failed to restore review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.sanitize_input">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">sanitize_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#sanitize_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.sanitize_input" title="Link to this definition"></a></dt>
+<dd><p>Sanitize user input to prevent XSS and SQL injection.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Escapes HTML characters to prevent XSS attacks and escapes single quotes
+to prevent SQL injection. Strips whitespace from the input.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Input text to sanitize. Can be None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sanitized text with HTML characters escaped and SQL-injection
+patterns removed, or None if input is None or empty.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.show_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">show_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#show_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.show_review" title="Link to this definition"></a></dt>
+<dd><p>Show a hidden review (Moderator/Admin only).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Makes a previously hidden review visible to regular users again by clearing
+the is_hidden flag. Records the moderator who performed the action.
+A review cannot be shown if it is not currently hidden.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to show.</p></li>
+<li><p><strong>moderator_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the moderator or admin performing the
+show action. Stored in moderated_by field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review shown successfully”</p></li>
+<li><p>review_id (int): ID of the shown review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Review is not hidden”</p></li>
+<li><p>”Failed to show review”</p></li>
+<li><p>”Failed to show review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.unflag_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">unflag_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#unflag_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.unflag_review" title="Link to this definition"></a></dt>
+<dd><p>Unflag a review (moderator/admin only).</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Removes the flag from a review, indicating it has been reviewed and approved
+by a moderator or admin. Marks the review as moderated and records the
+moderator who performed the action. Once unflagged, the review becomes
+visible to regular users again. A review cannot be unflagged if it is not
+currently flagged.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to unflag.</p></li>
+<li><p><strong>moderator_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the moderator or admin performing the
+unflag action. Stored in moderated_by field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>On success, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>message (str): “Review unflagged successfully”</p></li>
+<li><p>review_id (int): ID of the unflagged review</p></li>
+<li><p>status (str): “success”</p></li>
+</ul>
+</dd>
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Review is not flagged”</p></li>
+<li><p>”Failed to unflag review”</p></li>
+<li><p>”Failed to unflag review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="reviews.review_model.update_review">
+<span class="sig-prename descclassname"><span class="pre">reviews.review_model.</span></span><span class="sig-name descname"><span class="pre">update_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">review_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/reviews/review_model.html#update_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#reviews.review_model.update_review" title="Link to this definition"></a></dt>
+<dd><p>Update an existing review.</p>
+<dl class="simple">
+<dt>Functionality:</dt><dd><p>Updates one or more fields of an existing review. Validates authorization
+(users can only update their own reviews unless they are admin/moderator),
+validates rating if provided, and sanitizes comment text. Updates the
+updated_at timestamp automatically.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<em>int</em>) – The unique identifier of the review to update.</p></li>
+<li><p><strong>review_data</strong> (<em>Dict</em>) – Dictionary containing fields to update with keys:
+- rating (int, optional): New rating value (1-5)
+- comment (str, optional): New comment text</p></li>
+<li><p><strong>provided.</strong> (<em>At least one field must be</em>)</p></li>
+<li><p><strong>user_id</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – ID of the user making the request (for authorization).
+Required for non-admin/moderator users.</p></li>
+<li><p><strong>is_admin</strong> (<em>bool</em>) – Whether the user is an admin. Defaults to False.</p></li>
+<li><p><strong>is_moderator</strong> (<em>bool</em>) – Whether the user is a moderator. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>On success, returns dictionary containing the updated review with
+all fields (same structure as get_review_by_id()).</p>
+<dl class="simple">
+<dt>On error, returns dictionary with:</dt><dd><ul class="simple">
+<li><p>error (str): Error message describing what went wrong</p></li>
+<li><p>status (str): “error”</p></li>
+</ul>
+</dd>
+<dt>Possible errors:</dt><dd><ul class="simple">
+<li><p>”Review not found”</p></li>
+<li><p>”Unauthorized: You can only update your own reviews”</p></li>
+<li><p>”Rating must be between 1 and 5”</p></li>
+<li><p>”Invalid rating value”</p></li>
+<li><p>”No fields to update”</p></li>
+<li><p>”Failed to update review: &lt;error details&gt;”</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="reviews-review-routes-module">
+<h2>reviews.review_routes module<a class="headerlink" href="#reviews-review-routes-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-reviews">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-reviews" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bookings.html" class="btn btn-neutral float-left" title="bookings package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="shared_utils.html" class="btn btn-neutral float-right" title="shared_utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

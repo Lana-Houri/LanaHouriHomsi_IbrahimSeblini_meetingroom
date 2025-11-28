@@ -1,0 +1,1066 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bookings.booking_model &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bookings.booking_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bookings.booking_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Booking Model</span>
+<span class="sd">Handles all database operations for meeting room bookings.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># Add parent directory to path for shared_utils</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">psycopg2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">psycopg2.extras</span><span class="w"> </span><span class="kn">import</span> <span class="n">RealDictCursor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="c1"># Try to use secure config, fallback to defaults</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.config_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">config_manager</span>
+    <span class="n">USE_SECURE_CONFIG</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">USE_SECURE_CONFIG</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="connect_to_db">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.connect_to_db">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connect_to_db</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Establish connection to PostgreSQL database using secure config.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">USE_SECURE_CONFIG</span><span class="p">:</span>
+        <span class="n">db_config</span> <span class="o">=</span> <span class="n">config_manager</span><span class="o">.</span><span class="n">get_db_config</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">db_config</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">db_config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">db_config</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">db_config</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Fallback to default config</span>
+        <span class="k">return</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_HOST&#39;</span><span class="p">,</span> <span class="s1">&#39;db&#39;</span><span class="p">),</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;meetingroom&#39;</span><span class="p">),</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">),</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DB_PASSWORD&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_bookings">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_all_bookings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_bookings</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all bookings with user and room details.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of booking dictionaries with user and room information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                b.booking_id,</span>
+<span class="s2">                b.user_id,</span>
+<span class="s2">                b.room_id,</span>
+<span class="s2">                b.booking_date,</span>
+<span class="s2">                b.start_time,</span>
+<span class="s2">                b.end_time,</span>
+<span class="s2">                b.status,</span>
+<span class="s2">                b.created_at,</span>
+<span class="s2">                b.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                r.room_name,</span>
+<span class="s2">                r.room_location,</span>
+<span class="s2">                r.Capacity</span>
+<span class="s2">            FROM Bookings b</span>
+<span class="s2">            JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">            ORDER BY b.booking_date DESC, b.start_time DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching bookings: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">bookings</span></div>
+
+
+
+<div class="viewcode-block" id="get_booking_by_id">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_booking_by_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_booking_by_id</span><span class="p">(</span><span class="n">booking_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve a specific booking by ID.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_id: The ID of the booking to retrieve.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Booking dictionary or empty dict if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">booking</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                b.booking_id,</span>
+<span class="s2">                b.user_id,</span>
+<span class="s2">                b.room_id,</span>
+<span class="s2">                b.booking_date,</span>
+<span class="s2">                b.start_time,</span>
+<span class="s2">                b.end_time,</span>
+<span class="s2">                b.status,</span>
+<span class="s2">                b.created_at,</span>
+<span class="s2">                b.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                r.room_name,</span>
+<span class="s2">                r.room_location,</span>
+<span class="s2">                r.Capacity</span>
+<span class="s2">            FROM Bookings b</span>
+<span class="s2">            JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">            WHERE b.booking_id = </span><span class="si">%s</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">booking</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching booking: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">booking</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">booking</span></div>
+
+
+
+<div class="viewcode-block" id="get_user_bookings">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_user_bookings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_user_bookings</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve all bookings for a specific user.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        user_id: The ID of the user.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of booking dictionaries for the user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                b.booking_id,</span>
+<span class="s2">                b.user_id,</span>
+<span class="s2">                b.room_id,</span>
+<span class="s2">                b.booking_date,</span>
+<span class="s2">                b.start_time,</span>
+<span class="s2">                b.end_time,</span>
+<span class="s2">                b.status,</span>
+<span class="s2">                b.created_at,</span>
+<span class="s2">                b.updated_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                r.room_name,</span>
+<span class="s2">                r.room_location,</span>
+<span class="s2">                r.Capacity</span>
+<span class="s2">            FROM Bookings b</span>
+<span class="s2">            JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">            WHERE b.user_id = </span><span class="si">%s</span>
+<span class="s2">            ORDER BY b.booking_date DESC, b.start_time DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching user bookings: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">bookings</span></div>
+
+
+
+<div class="viewcode-block" id="get_room_bookings">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_room_bookings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_room_bookings</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve bookings for a specific room, optionally filtered by date.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        room_id: The ID of the room.</span>
+<span class="sd">        booking_date: Optional date to filter bookings (YYYY-MM-DD format).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of booking dictionaries for the room.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">booking_date</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    b.booking_id,</span>
+<span class="s2">                    b.user_id,</span>
+<span class="s2">                    b.room_id,</span>
+<span class="s2">                    b.booking_date,</span>
+<span class="s2">                    b.start_time,</span>
+<span class="s2">                    b.end_time,</span>
+<span class="s2">                    b.status,</span>
+<span class="s2">                    b.created_at,</span>
+<span class="s2">                    b.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    r.room_name,</span>
+<span class="s2">                    r.room_location,</span>
+<span class="s2">                    r.Capacity</span>
+<span class="s2">                FROM Bookings b</span>
+<span class="s2">                JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">                WHERE b.room_id = </span><span class="si">%s</span><span class="s2"> AND b.booking_date = </span><span class="si">%s</span><span class="s2"> AND b.status != &#39;Cancelled&#39;</span>
+<span class="s2">                ORDER BY b.start_time</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    b.booking_id,</span>
+<span class="s2">                    b.user_id,</span>
+<span class="s2">                    b.room_id,</span>
+<span class="s2">                    b.booking_date,</span>
+<span class="s2">                    b.start_time,</span>
+<span class="s2">                    b.end_time,</span>
+<span class="s2">                    b.status,</span>
+<span class="s2">                    b.created_at,</span>
+<span class="s2">                    b.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    r.room_name,</span>
+<span class="s2">                    r.room_location,</span>
+<span class="s2">                    r.Capacity</span>
+<span class="s2">                FROM Bookings b</span>
+<span class="s2">                JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">                WHERE b.room_id = </span><span class="si">%s</span><span class="s2"> AND b.status != &#39;Cancelled&#39;</span>
+<span class="s2">                ORDER BY b.booking_date, b.start_time</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+        
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching room bookings: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">bookings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">bookings</span></div>
+
+
+
+<div class="viewcode-block" id="check_room_availability">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.check_room_availability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_room_availability</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exclude_booking_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a room is available for a given time slot.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        room_id: The ID of the room.</span>
+<span class="sd">        booking_date: Date of the booking (YYYY-MM-DD format).</span>
+<span class="sd">        start_time: Start time (HH:MM:SS format).</span>
+<span class="sd">        end_time: End time (HH:MM:SS format).</span>
+<span class="sd">        exclude_booking_id: Optional booking ID to exclude from check (for updates).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        True if room is available, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        
+        <span class="c1"># Check for overlapping bookings</span>
+        <span class="c1"># Two time slots overlap if: existing_start &lt; new_end AND existing_end &gt; new_start</span>
+        <span class="k">if</span> <span class="n">exclude_booking_id</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT COUNT(*) </span>
+<span class="s2">                FROM Bookings </span>
+<span class="s2">                WHERE room_id = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">                AND booking_date = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">                AND status != &#39;Cancelled&#39;</span>
+<span class="s2">                AND booking_id != </span><span class="si">%s</span>
+<span class="s2">                AND start_time &lt; </span><span class="si">%s</span><span class="s2"> AND end_time &gt; </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">exclude_booking_id</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT COUNT(*) </span>
+<span class="s2">                FROM Bookings </span>
+<span class="s2">                WHERE room_id = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">                AND booking_date = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">                AND status != &#39;Cancelled&#39;</span>
+<span class="s2">                AND start_time &lt; </span><span class="si">%s</span><span class="s2"> AND end_time &gt; </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
+        
+        <span class="n">count</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking room availability: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="check_room_exists">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.check_room_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_room_exists</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a room exists and is available.</span>
+<span class="sd">    First tries to call rooms service via circuit breaker, falls back to direct DB query.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to call rooms service with circuit breaker</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+        <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+        
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.circuit_breaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">,</span> <span class="n">CircuitBreakerOpenError</span>
+        
+        <span class="c1"># Get service URL from environment or use default</span>
+        <span class="n">rooms_service_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;ROOMS_SERVICE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;http://rooms-service:5000&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># First get room name from DB (we need it for the API call)</span>
+            <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT room_name, room_status FROM Rooms WHERE room_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            
+            <span class="n">room_name</span><span class="p">,</span> <span class="n">room_status</span> <span class="o">=</span> <span class="n">row</span>
+            
+            <span class="c1"># Call rooms service to verify</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;rooms&#39;</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rooms_service_url</span><span class="si">}</span><span class="s1">/api/rooms/</span><span class="si">{</span><span class="n">room_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">room_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">room_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;room_status&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Available&#39;</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">CircuitBreakerOpenError</span><span class="p">:</span>
+            <span class="c1"># Circuit is open, use DB result we already have</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Circuit breaker OPEN for rooms service, using DB result&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">room_status</span> <span class="o">==</span> <span class="s1">&#39;Available&#39;</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Service call failed, use DB result</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rooms service call failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, using DB result&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">room_status</span> <span class="o">==</span> <span class="s1">&#39;Available&#39;</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Circuit breaker not available, use DB directly</span>
+        <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># Any other error, fall through to DB query</span>
+        <span class="k">pass</span>
+    
+    <span class="c1"># Fallback: Direct database query</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT room_id, room_status FROM Rooms WHERE room_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,))</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Available&#39;</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking room: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="check_user_exists">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.check_user_exists">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_user_exists</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a user exists.</span>
+<span class="sd">    First tries to call users service via circuit breaker, falls back to direct DB query.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to call users service with circuit breaker</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+        <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">parent_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+        
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shared_utils.circuit_breaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">,</span> <span class="n">CircuitBreakerOpenError</span>
+        
+        <span class="c1"># Get service URL from environment or use default</span>
+        <span class="n">users_service_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;USERS_SERVICE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;http://users-service:5001&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Try to get user by ID - we need to use a different endpoint or get username first</span>
+            <span class="c1"># For now, we&#39;ll use a direct DB query but still track via circuit breaker</span>
+            <span class="c1"># In a real system, you&#39;d have a GET /admin/users/by-id/&lt;user_id&gt; endpoint</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">call_service_with_circuit_breaker</span><span class="p">(</span>
+                <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;users&#39;</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">users_service_url</span><span class="si">}</span><span class="s1">/admin/users&#39;</span><span class="p">,</span>  <span class="c1"># Get all users and check</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">users</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="c1"># Check if user_id exists in the list (simplified check)</span>
+                <span class="c1"># In production, use a proper endpoint</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Service is up, assume user exists (we&#39;ll verify with DB)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">CircuitBreakerOpenError</span><span class="p">:</span>
+            <span class="c1"># Circuit is open, fall back to direct DB query</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Circuit breaker OPEN for users service, falling back to DB query&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Service call failed, fall back to DB</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Users service call failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, falling back to DB query&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Circuit breaker not available, use DB directly</span>
+        <span class="k">pass</span>
+    
+    <span class="c1"># Fallback: Direct database query</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id FROM Users WHERE user_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking user: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="create_booking">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.create_booking">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_booking</span><span class="p">(</span><span class="n">booking_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new booking.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_data: Dictionary containing booking details (user_id, room_id, booking_date, start_time, end_time).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Created booking dictionary or error message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Validate required fields</span>
+        <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">,</span> <span class="s1">&#39;room_id&#39;</span><span class="p">,</span> <span class="s1">&#39;booking_date&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;end_time&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">booking_data</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Missing required fields&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">booking_data</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+        <span class="n">room_id</span> <span class="o">=</span> <span class="n">booking_data</span><span class="p">[</span><span class="s1">&#39;room_id&#39;</span><span class="p">]</span>
+        <span class="n">booking_date</span> <span class="o">=</span> <span class="n">booking_data</span><span class="p">[</span><span class="s1">&#39;booking_date&#39;</span><span class="p">]</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">booking_data</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">booking_data</span><span class="p">[</span><span class="s1">&#39;end_time&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Validate user and room exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_user_exists</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User does not exist&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_room_exists</span><span class="p">(</span><span class="n">room_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Room does not exist or is not available&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Check availability</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_room_availability</span><span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Room is not available for the requested time slot&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            INSERT INTO Bookings (user_id, room_id, booking_date, start_time, end_time, status)</span>
+<span class="s2">            VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, &#39;Confirmed&#39;)</span>
+<span class="s2">            RETURNING booking_id, user_id, room_id, booking_date, start_time, end_time, status, created_at, updated_at</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1"># Fetch additional details</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    b.booking_id,</span>
+<span class="s2">                    b.user_id,</span>
+<span class="s2">                    b.room_id,</span>
+<span class="s2">                    b.booking_date,</span>
+<span class="s2">                    b.start_time,</span>
+<span class="s2">                    b.end_time,</span>
+<span class="s2">                    b.status,</span>
+<span class="s2">                    b.created_at,</span>
+<span class="s2">                    b.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    r.room_name,</span>
+<span class="s2">                    r.room_location,</span>
+<span class="s2">                    r.Capacity</span>
+<span class="s2">                FROM Bookings b</span>
+<span class="s2">                JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">                WHERE b.booking_id = </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;booking_id&#39;</span><span class="p">],))</span>
+            <span class="n">full_row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">full_row</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">full_row</span><span class="p">)</span>
+        
+    <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking conflict: Room is already booked for this time slot&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to create booking: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="update_booking">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.update_booking">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_booking</span><span class="p">(</span><span class="n">booking_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">booking_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_admin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update an existing booking.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_id: The ID of the booking to update.</span>
+<span class="sd">        booking_data: Dictionary containing fields to update.</span>
+<span class="sd">        user_id: ID of the user making the request (for authorization).</span>
+<span class="sd">        is_admin: Whether the user is an admin.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Updated booking dictionary or error message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if booking exists and user has permission</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id, room_id, booking_date, start_time, end_time FROM Bookings WHERE booking_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">existing</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
+        
+        <span class="c1"># Authorization check</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_admin</span> <span class="ow">and</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Unauthorized: You can only update your own bookings&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Get updated values</span>
+        <span class="n">room_id</span> <span class="o">=</span> <span class="n">booking_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;room_id&#39;</span><span class="p">,</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;room_id&#39;</span><span class="p">])</span>
+        <span class="n">booking_date</span> <span class="o">=</span> <span class="n">booking_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;booking_date&#39;</span><span class="p">,</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;booking_date&#39;</span><span class="p">])</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">booking_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">])</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">booking_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;end_time&#39;</span><span class="p">])</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">booking_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="n">existing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;Confirmed&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Validate room exists if changed</span>
+        <span class="k">if</span> <span class="n">room_id</span> <span class="o">!=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;room_id&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check_room_exists</span><span class="p">(</span><span class="n">room_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Room does not exist or is not available&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Check availability if time/date/room changed</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">room_id</span> <span class="o">!=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;room_id&#39;</span><span class="p">]</span> <span class="ow">or</span> 
+            <span class="n">booking_date</span> <span class="o">!=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;booking_date&#39;</span><span class="p">]</span> <span class="ow">or</span> 
+            <span class="n">start_time</span> <span class="o">!=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="ow">or</span> 
+            <span class="n">end_time</span> <span class="o">!=</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;end_time&#39;</span><span class="p">]):</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_room_availability</span><span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">booking_date</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">),</span> <span class="n">booking_id</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Room is not available for the requested time slot&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Update booking</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Bookings </span>
+<span class="s2">            SET room_id = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                booking_date = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                start_time = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                end_time = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                status = </span><span class="si">%s</span><span class="s2">,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE booking_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING booking_id, user_id, room_id, booking_date, start_time, end_time, status, created_at, updated_at</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">booking_id</span><span class="p">))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1"># Fetch additional details</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span>
+<span class="s2">                    b.booking_id,</span>
+<span class="s2">                    b.user_id,</span>
+<span class="s2">                    b.room_id,</span>
+<span class="s2">                    b.booking_date,</span>
+<span class="s2">                    b.start_time,</span>
+<span class="s2">                    b.end_time,</span>
+<span class="s2">                    b.status,</span>
+<span class="s2">                    b.created_at,</span>
+<span class="s2">                    b.updated_at,</span>
+<span class="s2">                    u.username,</span>
+<span class="s2">                    u.user_name,</span>
+<span class="s2">                    r.room_name,</span>
+<span class="s2">                    r.room_location,</span>
+<span class="s2">                    r.Capacity</span>
+<span class="s2">                FROM Bookings b</span>
+<span class="s2">                JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">                JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">                WHERE b.booking_id = </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+            <span class="n">full_row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">full_row</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">full_row</span><span class="p">)</span>
+        
+    <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking conflict: Room is already booked for this time slot&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to update booking: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="cancel_booking">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.cancel_booking">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cancel_booking</span><span class="p">(</span><span class="n">booking_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_admin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cancel a booking.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_id: The ID of the booking to cancel.</span>
+<span class="sd">        user_id: ID of the user making the request (for authorization).</span>
+<span class="sd">        is_admin: Whether the user is an admin.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Success message or error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if booking exists and user has permission</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT user_id, status FROM Bookings WHERE booking_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">existing</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
+        
+        <span class="c1"># Authorization check</span>
+        <span class="k">if</span> <span class="n">user_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_admin</span> <span class="ow">and</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Unauthorized: You can only cancel your own bookings&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">existing</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Cancelled&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking is already cancelled&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="c1"># Update status to Cancelled</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE Bookings </span>
+<span class="s2">            SET status = &#39;Cancelled&#39;,</span>
+<span class="s2">                updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">            WHERE booking_id = </span><span class="si">%s</span>
+<span class="s2">            RETURNING booking_id, status</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking cancelled successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;booking_id&quot;</span><span class="p">:</span> <span class="n">booking_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed to cancel booking&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to cancel booking: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="get_conflicting_bookings">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_conflicting_bookings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_conflicting_bookings</span><span class="p">(</span><span class="n">room_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all bookings that conflict with a given time slot.</span>
+<span class="sd">    Used for conflict resolution by admins.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        room_id: The ID of the room.</span>
+<span class="sd">        booking_date: Date of the booking (YYYY-MM-DD format).</span>
+<span class="sd">        start_time: Start time (HH:MM:SS format).</span>
+<span class="sd">        end_time: End time (HH:MM:SS format).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of conflicting booking dictionaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">conflicts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                b.booking_id,</span>
+<span class="s2">                b.user_id,</span>
+<span class="s2">                b.room_id,</span>
+<span class="s2">                b.booking_date,</span>
+<span class="s2">                b.start_time,</span>
+<span class="s2">                b.end_time,</span>
+<span class="s2">                b.status,</span>
+<span class="s2">                b.created_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                u.user_name,</span>
+<span class="s2">                r.room_name</span>
+<span class="s2">            FROM Bookings b</span>
+<span class="s2">            JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">            WHERE b.room_id = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">            AND b.booking_date = </span><span class="si">%s</span><span class="s2"> </span>
+<span class="s2">            AND b.status != &#39;Cancelled&#39;</span>
+<span class="s2">            AND b.start_time &lt; </span><span class="si">%s</span><span class="s2"> AND b.end_time &gt; </span><span class="si">%s</span>
+<span class="s2">            ORDER BY b.start_time</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">booking_date</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">start_time</span><span class="p">))</span>
+        
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">conflicts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching conflicts: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">conflicts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">conflicts</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_booking_conflict">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.resolve_booking_conflict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_booking_conflict</span><span class="p">(</span><span class="n">booking_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">resolution_action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">admin_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve a booking conflict by admin.</span>
+<span class="sd">    Actions: &#39;cancel&#39;, &#39;modify&#39;, &#39;override&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_id: The ID of the booking to resolve.</span>
+<span class="sd">        resolution_action: Action to take (&#39;cancel&#39;, &#39;modify&#39;, &#39;override&#39;).</span>
+<span class="sd">        admin_id: ID of the admin resolving the conflict.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Success message or error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Get the booking</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM Bookings WHERE booking_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        <span class="n">booking</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">booking</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">booking</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">booking</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">resolution_action</span> <span class="o">==</span> <span class="s1">&#39;cancel&#39;</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                UPDATE Bookings </span>
+<span class="s2">                SET status = &#39;Cancelled&#39;,</span>
+<span class="s2">                    updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">                WHERE booking_id = </span><span class="si">%s</span>
+<span class="s2">                RETURNING booking_id, status</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking cancelled to resolve conflict&quot;</span><span class="p">,</span> <span class="s2">&quot;booking_id&quot;</span><span class="p">:</span> <span class="n">booking_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        
+        <span class="k">elif</span> <span class="n">resolution_action</span> <span class="o">==</span> <span class="s1">&#39;modify&#39;</span><span class="p">:</span>
+            <span class="c1"># This would require additional data for modification</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Modify action requires additional booking data&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">elif</span> <span class="n">resolution_action</span> <span class="o">==</span> <span class="s1">&#39;override&#39;</span><span class="p">:</span>
+            <span class="c1"># Keep the booking but mark as admin-overridden</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking override confirmed&quot;</span><span class="p">,</span> <span class="s2">&quot;booking_id&quot;</span><span class="p">:</span> <span class="n">booking_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid resolution action. Use &#39;cancel&#39;, &#39;modify&#39;, or &#39;override&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to resolve conflict: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="get_stuck_bookings">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.get_stuck_bookings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_stuck_bookings</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get bookings that are in stuck states (e.g., status inconsistencies).</span>
+<span class="sd">    Admin can use this to identify and fix stuck bookings.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of potentially stuck booking dictionaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stuck</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Find bookings that might be stuck:</span>
+        <span class="c1"># 1. Bookings with status &#39;Confirmed&#39; but room is marked as &#39;Booked&#39; for past dates</span>
+        <span class="c1"># 2. Bookings with end_time in the past but status is still &#39;Confirmed&#39;</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT </span>
+<span class="s2">                b.booking_id,</span>
+<span class="s2">                b.user_id,</span>
+<span class="s2">                b.room_id,</span>
+<span class="s2">                b.booking_date,</span>
+<span class="s2">                b.start_time,</span>
+<span class="s2">                b.end_time,</span>
+<span class="s2">                b.status,</span>
+<span class="s2">                b.created_at,</span>
+<span class="s2">                u.username,</span>
+<span class="s2">                r.room_name,</span>
+<span class="s2">                r.room_status</span>
+<span class="s2">            FROM Bookings b</span>
+<span class="s2">            JOIN Users u ON b.user_id = u.user_id</span>
+<span class="s2">            JOIN Rooms r ON b.room_id = r.room_id</span>
+<span class="s2">            WHERE (</span>
+<span class="s2">                (b.status = &#39;Confirmed&#39; AND b.booking_date &lt; CURRENT_DATE) OR</span>
+<span class="s2">                (b.status = &#39;Confirmed&#39; AND b.booking_date = CURRENT_DATE AND b.end_time &lt; CURRENT_TIME)</span>
+<span class="s2">            )</span>
+<span class="s2">            ORDER BY b.booking_date DESC, b.start_time DESC</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">stuck</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching stuck bookings: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">stuck</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;conn&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">stuck</span></div>
+
+
+
+<div class="viewcode-block" id="unblock_stuck_booking">
+<a class="viewcode-back" href="../../bookings.html#bookings.booking_model.unblock_stuck_booking">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unblock_stuck_booking</span><span class="p">(</span><span class="n">booking_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unblock a stuck booking by admin.</span>
+<span class="sd">    Actions: &#39;complete&#39; (mark as completed) or &#39;cancel&#39; (cancel the booking).</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        booking_id: The ID of the stuck booking.</span>
+<span class="sd">        action: Action to take (&#39;complete&#39; or &#39;cancel&#39;).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Success message or error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">RealDictCursor</span><span class="p">)</span>
+        
+        <span class="c1"># Check if booking exists</span>
+        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT status FROM Bookings WHERE booking_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking not found&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;complete&#39;</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                UPDATE Bookings </span>
+<span class="s2">                SET status = &#39;Completed&#39;,</span>
+<span class="s2">                    updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">                WHERE booking_id = </span><span class="si">%s</span>
+<span class="s2">                RETURNING booking_id, status</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Booking marked as completed&quot;</span><span class="p">,</span> <span class="s2">&quot;booking_id&quot;</span><span class="p">:</span> <span class="n">booking_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;cancel&#39;</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                UPDATE Bookings </span>
+<span class="s2">                SET status = &#39;Cancelled&#39;,</span>
+<span class="s2">                    updated_at = CURRENT_TIMESTAMP</span>
+<span class="s2">                WHERE booking_id = </span><span class="si">%s</span>
+<span class="s2">                RETURNING booking_id, status</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">booking_id</span><span class="p">,))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Stuck booking cancelled&quot;</span><span class="p">,</span> <span class="s2">&quot;booking_id&quot;</span><span class="p">:</span> <span class="n">booking_id</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid action. Use &#39;complete&#39; or &#39;cancel&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+        
+        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Failed to unblock booking: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

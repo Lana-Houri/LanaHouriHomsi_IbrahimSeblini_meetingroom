@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bookings package &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="reviews package" href="reviews.html" />
+    <link rel="prev" title="LanaHouriHomsi_IbrahimSeblini_meetingroom" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bookings package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings-app-module">bookings.app module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bookings.booking_model">bookings.booking_model module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.cancel_booking"><code class="docutils literal notranslate"><span class="pre">cancel_booking()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.check_room_availability"><code class="docutils literal notranslate"><span class="pre">check_room_availability()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.check_room_exists"><code class="docutils literal notranslate"><span class="pre">check_room_exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.check_user_exists"><code class="docutils literal notranslate"><span class="pre">check_user_exists()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.connect_to_db"><code class="docutils literal notranslate"><span class="pre">connect_to_db()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.create_booking"><code class="docutils literal notranslate"><span class="pre">create_booking()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_all_bookings"><code class="docutils literal notranslate"><span class="pre">get_all_bookings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_booking_by_id"><code class="docutils literal notranslate"><span class="pre">get_booking_by_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_conflicting_bookings"><code class="docutils literal notranslate"><span class="pre">get_conflicting_bookings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_room_bookings"><code class="docutils literal notranslate"><span class="pre">get_room_bookings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_stuck_bookings"><code class="docutils literal notranslate"><span class="pre">get_stuck_bookings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.get_user_bookings"><code class="docutils literal notranslate"><span class="pre">get_user_bookings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.resolve_booking_conflict"><code class="docutils literal notranslate"><span class="pre">resolve_booking_conflict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.unblock_stuck_booking"><code class="docutils literal notranslate"><span class="pre">unblock_stuck_booking()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bookings.booking_model.update_booking"><code class="docutils literal notranslate"><span class="pre">update_booking()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings-booking-routes-module">bookings.booking_routes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings-profiler-module">bookings.profiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings-profiler-lineprofiler-module">bookings.profiler_lineprofiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings-profiler-memoryprofiler-module">bookings.profiler_memoryprofiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bookings">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reviews.html">reviews package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_utils.html">shared_utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">bookings package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bookings-app-module">bookings.app module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bookings.booking_model">bookings.booking_model module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.cancel_booking"><code class="docutils literal notranslate"><span class="pre">cancel_booking()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.check_room_availability"><code class="docutils literal notranslate"><span class="pre">check_room_availability()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.check_room_exists"><code class="docutils literal notranslate"><span class="pre">check_room_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.check_user_exists"><code class="docutils literal notranslate"><span class="pre">check_user_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.connect_to_db"><code class="docutils literal notranslate"><span class="pre">connect_to_db()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.create_booking"><code class="docutils literal notranslate"><span class="pre">create_booking()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_all_bookings"><code class="docutils literal notranslate"><span class="pre">get_all_bookings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_booking_by_id"><code class="docutils literal notranslate"><span class="pre">get_booking_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_conflicting_bookings"><code class="docutils literal notranslate"><span class="pre">get_conflicting_bookings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_room_bookings"><code class="docutils literal notranslate"><span class="pre">get_room_bookings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_stuck_bookings"><code class="docutils literal notranslate"><span class="pre">get_stuck_bookings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.get_user_bookings"><code class="docutils literal notranslate"><span class="pre">get_user_bookings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.resolve_booking_conflict"><code class="docutils literal notranslate"><span class="pre">resolve_booking_conflict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.unblock_stuck_booking"><code class="docutils literal notranslate"><span class="pre">unblock_stuck_booking()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bookings.booking_model.update_booking"><code class="docutils literal notranslate"><span class="pre">update_booking()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bookings-booking-routes-module">bookings.booking_routes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bookings-profiler-module">bookings.profiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bookings-profiler-lineprofiler-module">bookings.profiler_lineprofiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bookings-profiler-memoryprofiler-module">bookings.profiler_memoryprofiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bookings">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reviews.html">reviews package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shared_utils.html">shared_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">LanaHouriHomsi_IbrahimSeblini_meetingroom</a></li>
+      <li class="breadcrumb-item active">bookings package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/bookings.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bookings-package">
+<h1>bookings package<a class="headerlink" href="#bookings-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="bookings-app-module">
+<h2>bookings.app module<a class="headerlink" href="#bookings-app-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-bookings.booking_model">
+<span id="bookings-booking-model-module"></span><h2>bookings.booking_model module<a class="headerlink" href="#module-bookings.booking_model" title="Link to this heading"></a></h2>
+<p>Booking Model
+Handles all database operations for meeting room bookings.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.cancel_booking">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">cancel_booking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#cancel_booking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.cancel_booking" title="Link to this definition"></a></dt>
+<dd><p>Cancel a booking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>booking_id</strong> – The ID of the booking to cancel.</p></li>
+<li><p><strong>user_id</strong> – ID of the user making the request (for authorization).</p></li>
+<li><p><strong>is_admin</strong> – Whether the user is an admin.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Success message or error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.check_room_availability">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">check_room_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">booking_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#check_room_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.check_room_availability" title="Link to this definition"></a></dt>
+<dd><p>Check if a room is available for a given time slot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>room_id</strong> – The ID of the room.</p></li>
+<li><p><strong>booking_date</strong> – Date of the booking (YYYY-MM-DD format).</p></li>
+<li><p><strong>start_time</strong> – Start time (HH:MM:SS format).</p></li>
+<li><p><strong>end_time</strong> – End time (HH:MM:SS format).</p></li>
+<li><p><strong>exclude_booking_id</strong> – Optional booking ID to exclude from check (for updates).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if room is available, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.check_room_exists">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">check_room_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#check_room_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.check_room_exists" title="Link to this definition"></a></dt>
+<dd><p>Check if a room exists and is available.
+First tries to call rooms service via circuit breaker, falls back to direct DB query.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.check_user_exists">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">check_user_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#check_user_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.check_user_exists" title="Link to this definition"></a></dt>
+<dd><p>Check if a user exists.
+First tries to call users service via circuit breaker, falls back to direct DB query.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.connect_to_db">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">connect_to_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bookings/booking_model.html#connect_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.connect_to_db" title="Link to this definition"></a></dt>
+<dd><p>Establish connection to PostgreSQL database using secure config.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.create_booking">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">create_booking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#create_booking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.create_booking" title="Link to this definition"></a></dt>
+<dd><p>Create a new booking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>booking_data</strong> – Dictionary containing booking details (user_id, room_id, booking_date, start_time, end_time).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Created booking dictionary or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_all_bookings">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_all_bookings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_all_bookings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_all_bookings" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all bookings with user and room details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of booking dictionaries with user and room information.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_booking_by_id">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_booking_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_booking_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_booking_by_id" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a specific booking by ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>booking_id</strong> – The ID of the booking to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Booking dictionary or empty dict if not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_conflicting_bookings">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_conflicting_bookings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">booking_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_conflicting_bookings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_conflicting_bookings" title="Link to this definition"></a></dt>
+<dd><p>Get all bookings that conflict with a given time slot.
+Used for conflict resolution by admins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>room_id</strong> – The ID of the room.</p></li>
+<li><p><strong>booking_date</strong> – Date of the booking (YYYY-MM-DD format).</p></li>
+<li><p><strong>start_time</strong> – Start time (HH:MM:SS format).</p></li>
+<li><p><strong>end_time</strong> – End time (HH:MM:SS format).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of conflicting booking dictionaries.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_room_bookings">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_room_bookings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">booking_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_room_bookings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_room_bookings" title="Link to this definition"></a></dt>
+<dd><p>Retrieve bookings for a specific room, optionally filtered by date.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>room_id</strong> – The ID of the room.</p></li>
+<li><p><strong>booking_date</strong> – Optional date to filter bookings (YYYY-MM-DD format).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of booking dictionaries for the room.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_stuck_bookings">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_stuck_bookings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_stuck_bookings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_stuck_bookings" title="Link to this definition"></a></dt>
+<dd><p>Get bookings that are in stuck states (e.g., status inconsistencies).
+Admin can use this to identify and fix stuck bookings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of potentially stuck booking dictionaries.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.get_user_bookings">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">get_user_bookings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#get_user_bookings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.get_user_bookings" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all bookings for a specific user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – The ID of the user.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of booking dictionaries for the user.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.resolve_booking_conflict">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">resolve_booking_conflict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#resolve_booking_conflict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.resolve_booking_conflict" title="Link to this definition"></a></dt>
+<dd><p>Resolve a booking conflict by admin.
+Actions: ‘cancel’, ‘modify’, ‘override’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>booking_id</strong> – The ID of the booking to resolve.</p></li>
+<li><p><strong>resolution_action</strong> – Action to take (‘cancel’, ‘modify’, ‘override’).</p></li>
+<li><p><strong>admin_id</strong> – ID of the admin resolving the conflict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Success message or error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.unblock_stuck_booking">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">unblock_stuck_booking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'complete'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#unblock_stuck_booking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.unblock_stuck_booking" title="Link to this definition"></a></dt>
+<dd><p>Unblock a stuck booking by admin.
+Actions: ‘complete’ (mark as completed) or ‘cancel’ (cancel the booking).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>booking_id</strong> – The ID of the stuck booking.</p></li>
+<li><p><strong>action</strong> – Action to take (‘complete’ or ‘cancel’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Success message or error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bookings.booking_model.update_booking">
+<span class="sig-prename descclassname"><span class="pre">bookings.booking_model.</span></span><span class="sig-name descname"><span class="pre">update_booking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">booking_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">booking_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_admin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/bookings/booking_model.html#update_booking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bookings.booking_model.update_booking" title="Link to this definition"></a></dt>
+<dd><p>Update an existing booking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>booking_id</strong> – The ID of the booking to update.</p></li>
+<li><p><strong>booking_data</strong> – Dictionary containing fields to update.</p></li>
+<li><p><strong>user_id</strong> – ID of the user making the request (for authorization).</p></li>
+<li><p><strong>is_admin</strong> – Whether the user is an admin.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated booking dictionary or error message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="bookings-booking-routes-module">
+<h2>bookings.booking_routes module<a class="headerlink" href="#bookings-booking-routes-module" title="Link to this heading"></a></h2>
+</section>
+<section id="bookings-profiler-module">
+<h2>bookings.profiler module<a class="headerlink" href="#bookings-profiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="bookings-profiler-lineprofiler-module">
+<h2>bookings.profiler_lineprofiler module<a class="headerlink" href="#bookings-profiler-lineprofiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="bookings-profiler-memoryprofiler-module">
+<h2>bookings.profiler_memoryprofiler module<a class="headerlink" href="#bookings-profiler-memoryprofiler-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-bookings">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bookings" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="LanaHouriHomsi_IbrahimSeblini_meetingroom" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reviews.html" class="btn btn-neutral float-right" title="reviews package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

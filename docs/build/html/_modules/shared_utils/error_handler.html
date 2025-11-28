@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shared_utils.error_handler &mdash; MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MeetingRoom_LanaHouriHomsi_Ibrahim_Seblini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">shared_utils.error_handler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for shared_utils.error_handler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom Exception Handling Framework</span>
+<span class="sd">Provides standardized error handling and error messages across all services.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+
+<div class="viewcode-block" id="APIException">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.APIException">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">APIException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base exception class for API errors.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Base class for all custom API exceptions.</span>
+<span class="sd">        Provides standardized error response format.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        message (str): Error message</span>
+<span class="sd">        status_code (int): HTTP status code (default: 500)</span>
+<span class="sd">        error_code (str, optional): Application-specific error code</span>
+<span class="sd">        details (dict, optional): Additional error details</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> 
+                 <span class="n">error_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">status_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_code</span> <span class="o">=</span> <span class="n">error_code</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+    
+<div class="viewcode-block" id="APIException.to_dict">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.APIException.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert exception to dictionary for JSON response.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Error response dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">details</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ValidationError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.ValidationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for validation errors (400 Bad Request).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when request validation fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">field</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AuthenticationError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.AuthenticationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuthenticationError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for authentication errors (401 Unauthorized).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when authentication fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Authentication required&quot;</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;AUTHENTICATION_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{})</span></div>
+
+
+
+<div class="viewcode-block" id="AuthorizationError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.AuthorizationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuthorizationError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for authorization errors (403 Forbidden).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when user lacks required permissions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Insufficient permissions&quot;</span><span class="p">,</span> 
+                 <span class="n">required_role</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">required_role</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;required_role&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">required_role</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">403</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;AUTHORIZATION_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="NotFoundError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.NotFoundError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NotFoundError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for resource not found errors (404 Not Found).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when requested resource does not exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found&quot;</span>
+        <span class="k">if</span> <span class="n">resource_id</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (ID: </span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;resource&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span>
+        <span class="k">if</span> <span class="n">resource_id</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;resource_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_id</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;NOT_FOUND&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConflictError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.ConflictError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConflictError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for resource conflict errors (409 Conflict).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when operation conflicts with existing resource state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conflict_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">conflict_type</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;conflict_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conflict_type</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">409</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;CONFLICT_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DatabaseError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.DatabaseError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatabaseError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for database operation errors (500 Internal Server Error).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when database operations fail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Database operation failed&quot;</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;DATABASE_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">details</span> <span class="ow">or</span> <span class="p">{})</span></div>
+
+
+
+<div class="viewcode-block" id="ServiceUnavailableError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.ServiceUnavailableError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceUnavailableError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for service unavailable errors (503 Service Unavailable).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when a dependent service is unavailable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Service unavailable&quot;</span>
+        <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2"> service is unavailable&quot;</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">503</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;SERVICE_UNAVAILABLE&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RateLimitError">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.RateLimitError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RateLimitError</span><span class="p">(</span><span class="n">APIException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception for rate limit errors (429 Too Many Requests).</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Raised when rate limit is exceeded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">,</span> 
+                 <span class="n">retry_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">error_details</span> <span class="o">=</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">retry_after</span><span class="p">:</span>
+            <span class="n">error_details</span><span class="p">[</span><span class="s2">&quot;retry_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">retry_after</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">429</span><span class="p">,</span> <span class="n">error_code</span><span class="o">=</span><span class="s2">&quot;RATE_LIMIT_ERROR&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_details</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="register_error_handlers">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.register_error_handlers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_error_handlers</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Register global error handlers for Flask application.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Registers error handlers for custom exceptions and general exceptions.</span>
+<span class="sd">        Provides standardized error responses across all services.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        app: Flask application instance</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">APIException</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_api_exception</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">APIException</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle custom API exceptions.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            error: APIException instance</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            JSON response with error details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">status_code</span>
+        <span class="k">return</span> <span class="n">response</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_bad_request</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 400 Bad Request errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;BAD_REQUEST&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Bad request&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">400</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">401</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_unauthorized</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 401 Unauthorized errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;UNAUTHORIZED&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Authentication required&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">401</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">401</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_forbidden</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 403 Forbidden errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;FORBIDDEN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Insufficient permissions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">403</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">403</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 404 Not Found errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;NOT_FOUND&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource not found&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">404</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">409</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_conflict</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 409 Conflict errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;CONFLICT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource conflict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">409</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">409</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">429</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_rate_limit</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 429 Rate Limit errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;RATE_LIMIT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">429</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">429</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_internal_error</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle 500 Internal Server Error.&quot;&quot;&quot;</span>
+        <span class="c1"># Log the error for debugging</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Internal server error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+        
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;INTERNAL_SERVER_ERROR&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;An internal server error occurred&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">500</span>
+    
+    <span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_generic_exception</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle all unhandled exceptions.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            error: Exception instance</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            JSON response with error details</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Log the error</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled exception: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+        
+        <span class="c1"># Return generic error response</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="s2">&quot;INTERNAL_SERVER_ERROR&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;An unexpected error occurred&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="p">}),</span> <span class="mi">500</span></div>
+
+
+
+<div class="viewcode-block" id="create_error_response">
+<a class="viewcode-back" href="../../shared_utils.html#shared_utils.error_handler.create_error_response">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_error_response</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> 
+                          <span class="n">error_code</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">details</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a standardized error response.</span>
+<span class="sd">    </span>
+<span class="sd">    Functionality:</span>
+<span class="sd">        Helper function to create standardized error responses.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        message (str): Error message</span>
+<span class="sd">        status_code (int): HTTP status code</span>
+<span class="sd">        error_code (str, optional): Error code</span>
+<span class="sd">        details (dict, optional): Additional details</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (JSON response, status_code)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;error_code&quot;</span><span class="p">:</span> <span class="n">error_code</span> <span class="ow">or</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+        <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="n">status_code</span><span class="p">,</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">details</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">status_code</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, LanaHouriHomsi_IbrahimSeblini.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
